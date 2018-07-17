@@ -12,16 +12,22 @@
 #include <errno.h>
 
 
-#include "qtts.h"
-#include "msp_cmn.h"
-#include "msp_errors.h"
-
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 
 #include <sstream>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+extern "C" {
+#include "xf/qtts.h"
+#include "xf/msp_cmn.h"
+#include "xf/msp_errors.h"
+}
+
+std::string ttsResPath;
+std::string audioSavePath;
+std::string loginParams;
 
 
 /* wav音频头部格式 */
@@ -64,8 +70,7 @@ wave_pcm_hdr default_wav_hdr =
 
 
 /* 文本合成 */
-int text_to_speech(const char* src_text, const char* des_path, const char* params)
-{
+int text_to_speech(const char* src_text, const char* des_path, const char* params) {
     int          ret          = -1;
     FILE*        fp           = NULL;
     const char*  sessionID    = NULL;
@@ -145,29 +150,26 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
 }
 
 
-/**********************
-* 将文本发送到讯飞服务器，获取语音文件文件
-**********************/
-int makeTextToWav(const char* text, const char* filename)
-{
+int makeTextToWav(const char* text, const char* filename) {
     int         ret                  = MSP_SUCCESS;
-    const char* login_params         = "appid = 5972ada2, work_dir = .";//登录参数,appid与msc库绑定,请勿随意改动
-    const char* session_begin_params = "voice_name = xiaowanzi, text_encoding = utf8, sample_rate = 16000, speed = 50, volume = 100, pitch = 50, rdn = 0";
     /* 用户登录 */
-    ret = MSPLogin(NULL, NULL, login_params);
+    ret = MSPLogin(NULL, NULL, loginParams.c_str());
     if (MSP_SUCCESS != ret) {
         printf("MSPLogin failed, error code: %d.\n", ret);
-        goto exit ;//登录失败，退出登录
+        MSPLogout(); //退出登录
+        return 1;
     }
     /* 文本合成 */
     printf("开始合成 ...\n");
-    ret = text_to_speech(text, filename, session_begin_params);
+    std::stringstream sessionBeginParams;
+    sessionBeginParams << "voice_name = xiaoyan, text_encoding = utf8, sample_rate = 16000, speed = 50, volume = 100, pitch = 50, rdn = 0, tts_res_path = " << ttsResPath << std::endl;
+    std::cout << sessionBeginParams.str() << std::endl;
+    ret = text_to_speech(text, filename, sessionBeginParams.str().c_str());
     if (MSP_SUCCESS != ret) {
         printf("text_to_speech failed, error code: %d.\n", ret);
     }
     printf("合成完毕\n");
 
-exit:
     MSPLogout(); //退出登录
     return 1;
 }
@@ -175,46 +177,45 @@ exit:
 /******************
 * play the wav file
 ******************/
-void PlayWav(const char* cmd)
-{
+void playAudio(const char* cmd) {
     system(cmd);
 }
 
-/*******************
- * 接受 /roch/voice/tts_worlds 话题的字符串的回调函数
- ******************/
-void TTSCallback(const std_msgs::String::ConstPtr &msg)
-{
+void TTSCallback(const std_msgs::String::ConstPtr &msg) {
     std::cout << "Got a topic text: " << msg->data.c_str() << std::endl;
 
     ros::Time time;
     int32_t  f;
     std::stringstream filename, play_path;
     f = ros::Time::now().sec;
-    filename << "/home/ubuntu/gpsr_ws/src/roch_GPSR/roch_tts/wav/" << f << ".wav";
+    filename << audioSavePath << f << ".wav";
     play_path << "play " << filename.str();
 
     makeTextToWav(msg->data.c_str(), filename.str().c_str()); //语音合成
-    PlayWav(play_path.str().c_str()); //语音播放
+    playAudio(play_path.str().c_str()); //语音播放
 }
 
 
 
-void toExit()
-{
+void toExit() {
     printf("按任意键退出 ...\n");
     getchar();
     MSPLogout(); //退出登录
 }
 
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     ros::init(argc, argv, "xf_tts");
-    ros::NodeHandle n;
+    ros::NodeHandle n("~");
+
+    n.param("login_param", loginParams, std::string("appid = 123456"));
+    n.param("tts_res_path", ttsResPath,
+                      std::string("tts_res_path file unknown"));
+    n.param("audio_save_path", audioSavePath,
+            std::string("audio_save_path file unknown"));
+
     ros::Subscriber sub = n.subscribe("/xf/tts/words", 1, TTSCallback);
-    // pub = n.advertise<std_msgs::String>("/roch/voice/wakeup", 10);
-    
+
     ros::spin();
 
     return 0;
