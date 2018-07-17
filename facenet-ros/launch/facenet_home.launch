@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="facenet" type="facenet_home_node.py" name="facenet_home_node" output="screen">
+        <param name="model_path" value="~/home_ws/models/facenet/20180402-114759/20180402-114759.pb" />
+        <param name="database" value="/home/lennon/home_ws/datasets/" />
+        <param name="subscribe_image_topic" value="/darknet_ros/detection_image" />
+        <param name="subscribe_bounding_boxes_topic" value="/darknet_ros/bounding_boxes" />
+        <param name="action_detection_topic" value="/darknet_ros/check_for_objects" />
+    </node>
+</launch>

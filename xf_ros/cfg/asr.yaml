@@ -1,0 +1,5 @@
+publishers:
+  asr:
+    topic: /xf_ros/asr_msg
+    queue_size: 3
+    latch: false
