@@ -1,0 +1,12 @@
+yolo_model:
+  config_file:
+    name: yolo-face-computer.cfg
+  weight_file:
+    name: yolo-face-computer.weights
+  threshold:
+    value: 0.5
+  detection_classes:
+    names:
+      - face
+      - computer
+      - water

@@ -1,0 +1,35 @@
+local_costmap:
+    global_frame: /map  
+#    robot_base_frame: /base_link
+    robot_base_frame: /base_footprint
+    update_frequency: 10.0
+    publish_frequency: 10.0
+    transform_tolerance: 0.2
+    static_map: false  
+    rolling_window: true  
+    width: 5.0  #滑动窗口的宽(米)
+    height: 5.0  #滑动窗口的高
+    resolution: 0.05  #用于局部避障的costmap的分辨率(m/cell)，这里可以和路径规划的栅格地图不一样，分辨率低一点可以加快速度
+    always_send_full_costmap: true
+
+    #以下部分设置costmap的障碍物源，可以增加多个避障Lidar
+    plugins:  
+        - {name: obstacles1,      type: "costmap_2d::ObstacleLayer"}
+        #- {name: range_layer,      type: "range_sensor_layer::RangeSensorLayer"}
+        #- {name: inflation_layer, type: "costmap_2d::InflationLayer"}
+  
+    obstacles1:
+        track_unknown_space: true
+        footprint_clearing_enabled: true
+        observation_sources: scan
+        scan: { data_type: LaserScan, topic: /scan, sensor_frame: /scan, expected_update_rate: 0.2,
+            observation_persistence: 0.0, marking: true, clearing: true,
+            max_obstacle_height: 3, min_obstacle_height: -1.0,
+            obstacle_range: 7.0, raytrace_range: 7.0, inf_is_valid: true }
+
+    range_layer: {topics: ["/range"], no_readings_timeout: 1.0, clear_on_max_reading: true, input_sensor_type: "VARIABLE"}
+
+
+#对二维激光传感器，min_obstacle_height应设置为0，否则显示不出来
+#obstacle_range是以机器人为中心的半径
+#关于costmap的详细介绍看http://wiki.ros.org/costmap_2d

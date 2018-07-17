@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- Some general parameters -->
+	<rosparam file="$(find csc_nav2d_working)/param/ros.yaml"/>
+
+    <node name="MapServer" pkg="map_server" type="map_server" output="screen" args="$(find csc_nav2d_working)/maps/2ndFloor_map3.yaml"/>
+    <!--<node name="map_node" pkg="map_server" type="map_server" output="screen"-->
+          <!--args="$(find csc_nav2d_working)/maps/2ndFloor_map3.yaml"-->
+          <!--respawn="false">-->
+        <!--<param name="frame_id" value="/odom" />-->
+    <!--</node>-->
+
+    <!-- Start lidar and motor-->
+    <include file="$(find rplidar_ros)/launch/rplidar.launch" />
+    <include file="$(find turtlebot_bringup)/launch/minimal.launch" />
+
+    <!-- Start particle filter to track the robot's position -->
+    <!--<node name="SelfLocalizer" pkg="nav2d_localizer" type="localizer" output="screen">
+        <param name="min_particles" type="int" value="1000"/>
+        <param name="max_particles" type="int" value="20000"/>
+        <param name="min_translation" type="double" value="0.2"/>
+        <param name="min_rotation" type="double" value="0.05"/>
+    </node>-->
+    
+    <!--<include file="$(find csc_nav2d_working)/launch/amcl_diff.launch" />-->
+    <include file="$(find csc_nav2d_working)/launch/amcl.launch" />
+
+    <!-- Start the Operator to control the simulated robot -->
+    <node name="Operator" pkg="csc_nav2d_operator" type="operator" output="screen">
+        <rosparam file="$(find csc_nav2d_working)/param/operator.yaml"/>
+        <rosparam file="$(find csc_nav2d_working)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find csc_nav2d_working)/param/local_costmap_params.yaml" command="load" />
+    </node>
+
+	<!-- Start the Navigator to move the robot autonomously -->
+	<node name="Navigator" pkg="csc_nav2d_navigator" type="navigator" >
+        <rosparam file="$(find csc_nav2d_working)/param/navigator.yaml"/>
+        <rosparam file="$(find csc_nav2d_working)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find csc_nav2d_working)/param/local_costmap_params.yaml" command="load" />
+	</node>
+
+    <node name="SetGoal" pkg="csc_nav2d_navigator" type="set_goal_client" />
+    <!-- <node name="Remote" pkg="csc_nav2d_remote" type="remote_joy" /> -->
+
+	<!-- RVIZ to view the visualization -->
+	<node launch-prefix="nice -10" name="RVIZ" pkg="rviz" type="rviz" args=" -d $(find csc_nav2d_working)/rviz/myCar.rviz" />
+</launch>

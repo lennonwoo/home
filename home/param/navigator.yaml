@@ -1,0 +1,12 @@
+#这个定义了机器人四个顶点的位置
+footprint: [[0.2,0.2], [0.2,-0.2],[-0.2,-0.2],[-0.2,0.2]]
+
+# Tolerance in target position for MoveToPosition2D (meter)，距离容忍度
+navigation_goal_distance: 1.5
+
+# Toleranvce in target heading for MoveToPosition2D (radians)，角度容忍度
+navigation_goal_angle: 0.1
+
+# Distance at which to turn off obstacle avoidance (meter)
+navigation_homing_distance: 2.0
+
