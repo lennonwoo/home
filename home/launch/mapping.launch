@@ -6,6 +6,9 @@
         <rosparam file="$(find nav2d_tutorials)/param/mapper.yaml"/>
     </node> -->
 
+  <include file="$(find home)/launch/rplidar.launch" >
+  </include>
+
     <node name="slam_gmapping" pkg="gmapping" type="slam_gmapping" output="screen">
       <param name="base_frame" value="base_link"/>
       <param name="odom_frame" value="odom"/>
@@ -42,6 +45,6 @@
     </node>
 
     <!-- RVIZ to view the visualization -->
-    <node name="RVIZ" pkg="rviz" type="rviz" args=" -d $(find csc_nav2d_working)/rviz/my_mapping.rviz" />
+    <node name="RVIZ" pkg="rviz" type="rviz" args=" -d $(find home)/rviz/my_mapping.rviz" />
     
 </launch>
