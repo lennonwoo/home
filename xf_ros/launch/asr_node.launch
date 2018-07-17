@@ -4,7 +4,7 @@
 
     <!--NOTES: asr_res_path must start with fo|-->
     <arg name="asr_res_path" default="fo|$(find xf_ros)/res/asr/common.jet" />
-    <arg name="grm_build_path" default="$(find xf_ros)/res/asr/GrmBuilld" />
+    <arg name="grm_build_path" default="$(find xf_ros)/res/asr/GrmBuild" />
     <!--<arg name="grm_file_path" default="$(find xf_ros)/config/guest.bnf" />-->
     <!-- <arg name="grm_file_path" default="$(find xf_ros)/cfg/home.bnf" /> -->
     <arg name="grm_file_path" default="$(find xf_ros)/cfg/test.bnf" />
