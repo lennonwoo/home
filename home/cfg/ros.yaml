@@ -1,10 +1,10 @@
 subscribers:
 
   camera_reading:
-#    topic: /camera/rgb/image_raw
-    topic: /camera/color/image_raw
-#    topic: /usb_cam/image_raw
-    queue_size: 1
+     # topic: /camera/rgb/image_raw
+     # topic: /usb_cam/image_raw
+     topic: /camera/color/image_raw
+     queue_size: 1
 
 actions:
 

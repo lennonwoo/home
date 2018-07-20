@@ -6,9 +6,9 @@
     <arg name="asr_res_path" default="fo|$(find xf_ros)/res/asr/common.jet" />
     <arg name="grm_build_path" default="$(find xf_ros)/res/asr/GrmBuild" />
     <!--<arg name="grm_file_path" default="$(find xf_ros)/config/guest.bnf" />-->
-    <!-- <arg name="grm_file_path" default="$(find xf_ros)/cfg/home.bnf" /> -->
-    <arg name="grm_file_path" default="$(find xf_ros)/cfg/test.bnf" />
-    <arg name="audio_file_path" default="$(find xf_ros)/audio/ddhgdw.pcm" />
+    <arg name="grm_file_path" default="$(find xf_ros)/cfg/home.bnf" />
+    <!-- <arg name="grm_file_path" default="$(find xf_ros)/cfg/test.bnf" /> -->
+    <!-- <arg name="audio_file_path" default="$(find xf_ros)/audio/ddhgdw.pcm" /> -->
     <node pkg="xf_ros" type="asr_node" name="asr_node" output="screen">
         <param name="asr_res_path" value="$(arg asr_res_path)" />
         <param name="grm_build_path" value="$(arg grm_build_path)" />
