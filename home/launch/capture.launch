@@ -4,6 +4,7 @@
 
     <node pkg="home" type="capture.py" name="capture" output="screen">
         <param name="save_path" value="$(arg save_path)" />
-        <param name="subscribe_image_topic" value="/camera/color/image_raw" />
+        <!-- <param name="subscribe_image_topic" value="/camera/color/image_raw" /> -->
+        <param name="subscribe_image_topic" value="/camera/depth/image_rect_raw" />
     </node>
 </launch>

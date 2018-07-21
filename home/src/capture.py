@@ -2,6 +2,7 @@
 import os
 
 import rospy
+import numpy as np
 import cv2
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
@@ -17,9 +18,15 @@ class Capture:
         self.count = 0
         self.bridge = CvBridge()
 
-        rospy.Subscriber(sub_image_topic, Image, self.callback_image, queue_size=1)
+        callback = None
+        if 'color' in sub_image_topic:
+            callback = self.callback_color
+        elif 'depth' in sub_image_topic:
+            callback = self.callback_depth
 
-    def callback_image(self, data):
+        rospy.Subscriber(sub_image_topic, Image, callback, queue_size=1)
+
+    def callback_color(self, data):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
         except CvBridgeError as e:
@@ -30,6 +37,17 @@ class Capture:
         if key == 27:
             cv2.imwrite(''.join([self.path, str(self.count), ".jpg"]), cv_image)
             self.count += 1
+
+    def callback_depth(self, data):
+        try:
+            cv_image = self.bridge.imgmsg_to_cv2(data, "32FC1")
+        except CvBridgeError as e:
+            print(e)
+
+        cv2.imshow(CV_WINDOW_NAME, cv_image)
+        height, width = cv_image.shape
+        print(cv_image[height/2, width/2])
+        cv2.waitKey(30)
 
 
 def main():
