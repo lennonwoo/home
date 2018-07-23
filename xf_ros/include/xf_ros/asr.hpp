@@ -3,6 +3,9 @@
 
 // ROS
 #include <ros/ros.h>
+#include "std_msgs/String.h"
+
+// extra lib
 #include "tinyxml.h"
 
 // xf
@@ -16,7 +19,11 @@ extern "C" {
 
 namespace xf_ros {
 
-const int FRAME_LEN	         = 640;
+// define publisher for inconvience communication with xf lib and C++ class
+// so make it global in namespace xf_ros and init in asr_node.cpp main function
+ros::Publisher asr_pub;
+
+const int FRAME_LEN          = 640;
 const int BUFFER_SIZE        = 4096;
 const int SAMPLE_RATE_16K    = 16000;
 const int SAMPLE_RATE_8K     = 8000;
@@ -60,9 +67,14 @@ private:
     std::string loginParams_;
     std::string audioFilePath_;
 
+    // 持续进行asr的时间
+    int asrContinueMinutes_;
+
     UserData asr_data_;
 
+    // xf lib related
     int build_grammar();
+    void asr_mic(const char *session_begin_params);
 };
 }
 

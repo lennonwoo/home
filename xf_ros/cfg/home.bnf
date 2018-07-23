@@ -1,6 +1,7 @@
 #BNF+IAT 1.0 UTF-8;
 !grammar mission;
 
+!slot <intro>;
 !slot <name>;
 
 !slot <go>;
@@ -21,8 +22,10 @@
 !slot <give>;
 
 !start <missionstart>;
-<missionstart>:<task1>|<task2>;
+/* <missionstart>:<task1>|<task2>; */
+<missionstart>:<task0>|<task1>|<task2>;
 
+<task0>:<mission0>;
 <task1>:<mission0><mission1><mission2><mission1>;
 <task2>:<mission0><mission1><mission2><mission3>;
 
@@ -32,7 +35,8 @@
 <name>:拉文!id(4000)|丹尼尔!id(4001)|迈克尔!id(4002)|杰克!id(4003)|费希尔!id(4004)|凯文!id(4005)|露丝!id(4006)|约翰!id(4007)|玛丽!id(4008)|亚当!id(4009);
 
 
-<mission1>:<go><location><li>;
+<mission1>:<go><location>;
+//<mission1>:<go><location><li>;
 <go>:过去!id(101)|去!id(101)|走到!id(101)|到!id(101)|移动到!id(101);
 
 <location>:([<livingroom>][<ld>])|([<dingingroom>][<dd>])|([<kitchen>][<kd>])|([<bedroom>][<bd>]);
