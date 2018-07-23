@@ -27,6 +27,7 @@ extern "C" {
 
 std::string ttsResPath;
 std::string audioSavePath;
+std::string playCommand;
 std::string loginParams;
 
 
@@ -186,13 +187,13 @@ void TTSCallback(const std_msgs::String::ConstPtr &msg) {
 
     ros::Time time;
     int32_t  f;
-    std::stringstream filename, play_path;
+    std::stringstream filename, cmd;
     f = ros::Time::now().sec;
     filename << audioSavePath << f << ".wav";
-    play_path << "play " << filename.str();
+    cmd << playCommand << " " << filename.str();
 
-    makeTextToWav(msg->data.c_str(), filename.str().c_str()); //语音合成
-    playAudio(play_path.str().c_str()); //语音播放
+    makeTextToWav(msg->data.c_str(), filename.str().c_str());
+    playAudio(cmd.str().c_str());
 }
 
 
@@ -213,6 +214,8 @@ int main(int argc, char* argv[]) {
                       std::string("tts_res_path file unknown"));
     n.param("audio_save_path", audioSavePath,
             std::string("audio_save_path file unknown"));
+    n.param("play_command", playCommand,
+            std::string("play command unknown"));
 
     ros::Subscriber sub = n.subscribe("/xf/tts/words", 1, TTSCallback);
 
