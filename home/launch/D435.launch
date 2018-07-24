@@ -31,8 +31,8 @@
   <arg name="accel_fps"           default="1000"/>
   <arg name="enable_imu"          default="true"/>
 
-  <arg name="enable_pointcloud"   default="false"/>
-  <arg name="enable_sync"         default="false"/>
+  <arg name="enable_pointcloud"   default="true"/>
+  <arg name="enable_sync"         default="true"/>
   <arg name="align_depth"         default="false"/>
 
   <group ns="camera">
