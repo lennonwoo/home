@@ -2,9 +2,9 @@ yolo_model:
   config_file:
     name: yolov3-tiny-home.cfg
   weight_file:
-    name: yolov3-tiny-home_110000.weights
+    name: yolov3-tiny-home_340000.weights
   threshold:
-    value: 0.5
+    value: 0.6
   detection_classes:
     names:
       - face
