@@ -1,0 +1,26 @@
+<package>
+  <name>home_bringup</name>
+  <version>0.0.1</version>
+  <description>
+     turtlebot_bringup provides roslaunch scripts for starting the TurtleBot base functionality. 
+  </description>
+  <author>Tully Foote</author>
+  <maintainer email="cccmorin@gmail.com">Lennon Woo</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>realsense_camera</run_depend>
+  <run_depend>yocs_cmd_vel_mux</run_depend>
+  <run_depend>kobuki_capabilities</run_depend>
+  <run_depend>kobuki_node</run_depend>
+  <run_depend>kobuki_bumper2pc</run_depend>
+  <run_depend>kobuki_safety_controller</run_depend>
+  <run_depend>create_node</run_depend>
+  <run_depend>robot_state_publisher</run_depend>
+  <run_depend>robot_pose_ekf</run_depend>
+  <run_depend>diagnostic_aggregator</run_depend>
+  <run_depend>laptop_battery_monitor</run_depend>
+  <run_depend>rocon_app_manager</run_depend>
+  <run_depend>rocon_bubble_icons</run_depend>
+</package>

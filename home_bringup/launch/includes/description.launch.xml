@@ -1,0 +1,7 @@
+<!--
+  Robot description only (used in private and paired master).
+ -->
+<launch>
+  <arg name="urdf_file" default="$(find xacro)/xacro --inorder '$(find home_bringup)/urdf/home.urdf.xacro'"/>
+  <param name="robot_description" command="$(arg urdf_file)"/>
+</launch>
