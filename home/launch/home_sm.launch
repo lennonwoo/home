@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+    <node pkg="home" type="home_sm.py" name="home_sm" output="screen" />
+</launch>
