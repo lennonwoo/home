@@ -34,10 +34,12 @@ class Face:
 
 
 class Recognition:
-    def __init__(self, model_path, imgs):
+    def __init__(self, model_path, imgs=None):
         self.init_encoder(model_path)
-        self.init_db(imgs)
-        self.identify(self.face_db[0].img)
+
+        if imgs:
+            self.init_db(imgs)
+            self.identify(self.face_db[0].img)
 
     @timing
     def init_encoder(self, model_path):
