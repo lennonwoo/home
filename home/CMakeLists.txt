@@ -4,6 +4,7 @@ project(home)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
+  facenet_ros
 )
 
 catkin_package(
