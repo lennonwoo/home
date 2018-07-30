@@ -20,6 +20,7 @@ add_action_files(
     action
   FILES
     XFeiTTS.action
+    HomeRecognize.action
 )
 
 generate_messages(

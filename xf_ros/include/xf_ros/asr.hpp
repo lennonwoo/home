@@ -4,8 +4,11 @@
 // ROS
 #include <ros/ros.h>
 #include "std_msgs/String.h"
+#include <actionlib/server/simple_action_server.h>
+#include "xf_ros/HomeRecognizeAction.h"
 
 // extra lib
+#include <thread>
 #include "tinyxml.h"
 
 // xf
@@ -44,6 +47,15 @@ public:
 
     int run_asr();
 
+    void start_asr();
+
+    typedef actionlib::SimpleActionServer<HomeRecognizeAction> HomeRecognizeActionServer;
+    typedef std::shared_ptr<HomeRecognizeActionServer> HomeRecognizeActionServerPtr;
+    HomeRecognizeActionServerPtr HomeRecognizeActionServer_;
+
+    bool enable_running_;
+    bool demoDone_;
+
 private:
     void initXF();
     void initParameters();
@@ -70,7 +82,17 @@ private:
     // 持续进行asr的时间
     int asrContinueMinutes_;
 
+    // HomeRecognize action related
+    void initActionlib();
+    void HomeRecognizeActionGoalCB();
+    void HomeRecognizeActionPreemptCB();
+    std::string bnfName;
+    int continueTime;
+
+    std::thread main_thread;
+
     UserData asr_data_;
+
 
     // xf lib related
     int build_grammar();

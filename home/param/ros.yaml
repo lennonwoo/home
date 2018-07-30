@@ -15,6 +15,9 @@ laser_topic: /scan
 ### ROS services ##########################################
 map_service: static_map
 
+### YOLO part ###
+yolo_always_detect: false
+
 subscribers:
   camera_reading:
      # topic: /camera/rgb/image_raw
@@ -25,6 +28,9 @@ subscribers:
 actions:
   camera_reading:
     name: /darknet_ros/check_for_objects
+  home_asr:
+    name: /xf_asr/home_recognize
+  delay_time: 30
 
 publishers:
   object_detector:

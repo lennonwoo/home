@@ -15,6 +15,6 @@
         <param name="grm_file_path" value="$(arg grm_file_path)" />
         <param name="audio_file_path" value="$(arg audio_file_path)" />
         <param name="login_param" value="appid=5b4d530f" />
-        <param name="asr_continue_minutes" value="1" />
+        <param name="asr_continue_minutes" value="8" />
     </node>
 </launch>

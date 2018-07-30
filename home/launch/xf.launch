@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
-     <include file="$(find xf_ros)/launch/tts.launch" />
-    <include file="$(find xf_ros)/launch/asr.launch" />
+  <include file="$(find xf_ros)/launch/tts.launch" />
+  <include file="$(find xf_ros)/launch/asr.launch" />
 </launch>

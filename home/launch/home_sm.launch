@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
-    <node pkg="home" type="home_sm.py" name="home_sm" output="screen" />
+  <arg name="database" default="$(find home)/datasets/" />
+  <arg name="model_path" default="$(find home)/models/facenet/20180402-114759/20180402-114759.pb" />
+  <node pkg="home" type="home_sm.py" name="home_sm" output="screen">
+    <param name="model_path" value="$(arg model_path)" />
+    <param name="subscribe_bounding_boxes_topic" value="/darknet_ros/bounding_boxes" />
+  </node>
 </launch>

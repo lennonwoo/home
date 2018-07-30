@@ -1,6 +1,6 @@
 /*
 @file
-@brief »ùÓÚÂ¼Òô½Ó¿ÚºÍÑ¶·ÉMSC½Ó¿Ú·â×°Ò»¸öMICÂ¼ÒôÊ¶±ðµÄÄ£¿é
+@brief ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Ó¿Úºï¿½Ñ¶ï¿½ï¿½MSCï¿½Ó¿Ú·ï¿½×°Ò»ï¿½ï¿½MICÂ¼ï¿½ï¿½Ê¶ï¿½ï¿½ï¿½Ä£ï¿½ï¿½
 
 @author		taozhang9
 @date		2016/05/27
@@ -24,7 +24,8 @@ enum sr_audsrc
 
 
 struct speech_rec_notifier {
-	void (*on_result)(const char *result, char is_last);
+	void (*on_result)(const char *result, char is_last, void *ptr);
+	void *ptr;
 	void (*on_speech_begin)();
 	void (*on_speech_end)(int reason);	/* 0 if VAD.  others, error : see E_SR_xxx and msp_errors.h  */
 };

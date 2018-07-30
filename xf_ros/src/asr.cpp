@@ -71,7 +71,9 @@ void parse_result(const char *result) {
     }
 }
 
-void on_result(const char *result, char is_last) {
+void on_result(const char *result, char is_last, void *ptr) {
+    ASR *asr = (ASR*)ptr;
+    HomeRecognizeResult actionResult;
     printf("[on_result] result returned..\n");
 
     std_msgs::String msg;
@@ -81,7 +83,11 @@ void on_result(const char *result, char is_last) {
     msg.data = ss.str();
     std::cout << msg.data << std::endl;
 
-    asr_pub.publish(msg);
+    //asr_pub.publish(msg);
+    actionResult.msg = msg;
+    printf("sending...\n");
+    asr->HomeRecognizeActionServer_->setSucceeded(actionResult, "Send bounding boxes.");
+    printf("sending finished...\n");
 }
 
 void on_speech_begin() {
@@ -104,10 +110,12 @@ void ASR::asr_mic(const char *session_begin_params) {
 
     struct speech_rec_notifier recnotifier = {
             on_result,
+            this,
             on_speech_begin,
             on_speech_end
     };
 
+    printf("sr_init...\n");
     errcode = sr_init(&iat, session_begin_params, SR_MIC, &recnotifier);
     if (errcode) {
         printf("speech recognizer init failed\n");
@@ -118,7 +126,8 @@ void ASR::asr_mic(const char *session_begin_params) {
         printf("start listen failed %d\n", errcode);
     }
     /* demo 10 minutes recording */
-    while(i++ < 60 * asrContinueMinutes_)
+    //while(i++ < 60 * asrContinueMinutes_)
+    while(i++ < continueTime)
         sleep(1);
     errcode = sr_stop_listening(&iat);
     if (errcode) {
@@ -126,7 +135,7 @@ void ASR::asr_mic(const char *session_begin_params) {
     }
 
     sr_uninit(&iat);
-    exit(0);
+    printf("sr_uninit end...\n");
 }
 
 // static void asr_file(const char *audio_file, const char *session_begin_params) {
@@ -335,7 +344,8 @@ ASR::ASR(ros::NodeHandle nh)
 
     initParameters();
     initXF();
-    run_asr();
+    initActionlib();
+    main_thread = std::thread(&ASR::start_asr, this);
 }
 
 ASR::~ASR() {
@@ -358,6 +368,9 @@ void ASR::initParameters() {
     nodeHandle_.param("login_param", loginParams_, std::string("appid = 123456"));
     nodeHandle_.param("audio_file_path", audioFilePath_, std::string("audio file unknown"));
     nodeHandle_.param("asr_continue_minutes", asrContinueMinutes_, 1);
+
+    enable_running_ = false;
+    demoDone_ = false;
 
     memset(&asr_data_, 0, sizeof(UserData));
 }
@@ -382,6 +395,49 @@ inline void ASR::checkRet(const int ret, const char *errorMsg) {
             ROS_ERROR("[XF ASR] error code=%d", ret);
         }
         delete this;
+    }
+}
+
+void ASR::initActionlib() {
+    std::string HomeRecognizeActionName;
+    nodeHandle_.param("actions/home_asr/name", HomeRecognizeActionName,
+            std::string("/xf_asr/home_recognize"));
+    HomeRecognizeActionServer_.reset(
+            new HomeRecognizeActionServer(nodeHandle_, HomeRecognizeActionName, false));
+    HomeRecognizeActionServer_->registerGoalCallback(
+            boost::bind(&ASR::HomeRecognizeActionGoalCB, this));
+    HomeRecognizeActionServer_->registerPreemptCallback(
+            boost::bind(&ASR::HomeRecognizeActionPreemptCB, this));
+    HomeRecognizeActionServer_->start();
+}
+
+void ASR::HomeRecognizeActionGoalCB() {
+    ROS_DEBUG("[ASR] asr start action.");
+
+    boost::shared_ptr<const HomeRecognizeGoal> ActionPtr =
+            HomeRecognizeActionServer_->acceptNewGoal();
+    bnfName = ActionPtr->bnf_name.data;
+    continueTime = ActionPtr->continue_time;
+
+    enable_running_ = true;
+}
+
+void ASR::HomeRecognizeActionPreemptCB() {
+    ROS_DEBUG("[ASR] Preempt home asr action.");
+    HomeRecognizeActionServer_->setPreempted();
+}
+
+void ASR::start_asr() {
+    using namespace std;
+
+    thread asr_thread;
+    while (!demoDone_) {
+        sleep(0.5);
+        if (enable_running_) {
+            asr_thread = thread(&ASR::run_asr, this);
+            asr_thread.join();
+            enable_running_ = false;
+        }
     }
 }
 
