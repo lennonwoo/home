@@ -163,7 +163,7 @@ int makeTextToWav(const char* text, const char* filename) {
     /* 文本合成 */
     printf("开始合成 ...\n");
     std::stringstream sessionBeginParams;
-    sessionBeginParams << "voice_name = xiaoyan, text_encoding = utf8, sample_rate = 16000, speed = 50, volume = 100, pitch = 50, rdn = 0, tts_res_path = " << ttsResPath << std::endl;
+    sessionBeginParams << "engine_type = local, voice_name = xiaofeng, text_encoding = utf8, sample_rate = 16000, speed = 50, volume = 100, pitch = 50, rdn = 2, tts_res_path = " << ttsResPath << std::endl;
     std::cout << sessionBeginParams.str() << std::endl;
     ret = text_to_speech(text, filename, sessionBeginParams.str().c_str());
     if (MSP_SUCCESS != ret) {
