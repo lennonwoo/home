@@ -400,7 +400,7 @@ inline void ASR::checkRet(const int ret, const char *errorMsg) {
 
 void ASR::initActionlib() {
     std::string HomeRecognizeActionName;
-    nodeHandle_.param("actions/home_asr/name", HomeRecognizeActionName,
+    nodeHandle_.param("/xf_ros/actions/home_asr/name", HomeRecognizeActionName,
             std::string("/xf_asr/home_recognize"));
     HomeRecognizeActionServer_.reset(
             new HomeRecognizeActionServer(nodeHandle_, HomeRecognizeActionName, false));

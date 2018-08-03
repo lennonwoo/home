@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
-    <rosparam command="load" ns="xf_ros" file="$(find xf_ros)/cfg/asr.yaml"/>
+    <rosparam command="load" ns="xf_ros" file="$(find xf_ros)/cfg/xf.yaml"/>
 
     <!--NOTES: asr_res_path must start with fo|-->
     <arg name="asr_res_path" default="fo|$(find xf_ros)/res/asr/common.jet" />

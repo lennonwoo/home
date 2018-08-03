@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import os
+
 import rospy
 import actionlib
 
 from std_msgs.msg import String
-from sensor_msgs.msg import Image
 from xf_ros.msg import *
 
 from ..base import RobotPart
@@ -21,18 +22,43 @@ class Mouth(RobotPart):
         RobotPart.__init__(self, robot)
 
         self.pub = rospy.Publisher(self.config.speak_pub_topic, String, queue_size=0)
+        self.tts_action = actionlib.SimpleActionClient(self.config.tts_action_topic, TTSAction)
 
     def connect_subscribe(self):
         r = rospy.Rate(100)
         while self.pub.get_num_connections() == 0:
             r.sleep()
 
-    def speak(self, msg):
-        # TODO lennon how to check the msg publish successfully?
-        # use srv?
+    def speak_via_pub(self, msg):
         self.connect_subscribe()
         self.pub.publish(msg)
 
+    def speak(self, s):
+        result = self.tts_action.wait_for_server(rospy.Duration(3))
+        print(result)
+
+        goal = TTSGoal()
+
+        msg = String()
+        msg.data = s
+        goal.tts_str = msg
+
+        self.tts_action.send_goal(goal)
+
+        finished_in_time = self.tts_action.wait_for_result(rospy.Duration(10))
+        rospy.loginfo("finished in time: %s", finished_in_time)
+        # TODO how to handle the tts generation is too slow?
+        # if not finished_in_time:
+        #     rospy.loginfo("[get_job] start again")
+        #     self.robot.speak_with_wav(self.config.again_wav)
+        #     continue
+
+        audio_path = self.tts_action.get_result().audio_path.data
+        print(audio_path)
+        return self.speak_with_wav(audio_path)
+
+    def speak_with_wav(self, wav_path):
+        os.system(" ".join([self.config.play_command, wav_path]))
         return True
 
 
@@ -45,7 +71,8 @@ class Ear(RobotPart):
         self.xf_asr = actionlib.SimpleActionClient(self.config.asr_action_topic, HomeRecognizeAction)
 
     def get_job(self):
-        self.xf_asr.wait_for_server(rospy.Duration(30))
+        res = self.xf_asr.wait_for_server(rospy.Duration(3))
+        print(res)
         continue_time = 12
 
         job = None

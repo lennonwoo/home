@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-
 import rospy
 
 from body import Leg, Arm
@@ -27,12 +25,10 @@ class Robot:
 
     def speak(self, msg):
         self._mouth.speak(msg)
-        rospy.sleep(10)
         return True
 
     def speak_with_wav(self, wav_path):
-        os.system(" ".join([self.config.play_command, wav_path]))
-        return True
+        self._mouth.speak_with_wav(wav_path)
 
     def nav_by_place_name(self, name):
         assert type(name) == str

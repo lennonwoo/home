@@ -37,12 +37,13 @@ class Config:
     next_guest_wav = "/home/lennon/Desktop/next_guest.wav"
     again_wav = "/home/lennon/Desktop/again.wav"
 
-    people_num = 1
+    people_num = 2
 
     speak_pub_topic = "/xf/tts/words"
     eye_sub_topic = "/camera/color/image_raw"
 
     asr_action_topic = "/xf_asr/home_recognize"
+    tts_action_topic = "/xf_tts/tts_generate"
     yolo_action_topic = "/darknet_ros/check_for_objects"
 
     debug = True

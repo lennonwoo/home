@@ -14,6 +14,8 @@
 
 #include <ros/ros.h>
 #include <std_msgs/String.h>
+#include <actionlib/server/simple_action_server.h>
+#include "xf_ros/TTSAction.h"
 
 #include <sstream>
 #include <sys/types.h>
@@ -29,6 +31,13 @@ std::string ttsResPath;
 std::string audioSavePath;
 std::string playCommand;
 std::string loginParams;
+std_msgs::String ttsStr;
+
+using namespace xf_ros;
+
+typedef actionlib::SimpleActionServer<TTSAction> TTSActionServer;
+typedef std::shared_ptr<TTSActionServer > TTSActionServerPtr;
+TTSActionServerPtr TTSActionServer_;
 
 
 /* wav音频头部格式 */
@@ -205,6 +214,40 @@ void toExit() {
 }
 
 
+void TTSActionCb() {
+    boost::shared_ptr<const TTSGoal> ActionPtr =
+            TTSActionServer_->acceptNewGoal();
+    ttsStr = ActionPtr->tts_str;
+
+    std::cout << "Got a topic text: " << ttsStr.data.c_str() << std::endl;
+
+    ros::Time time;
+    int32_t  f;
+    std::stringstream filename;
+    f = ros::Time::now().sec;
+    filename << audioSavePath << f << ".wav";
+
+    makeTextToWav(ttsStr.data.c_str(), filename.str().c_str());
+
+    TTSResult actionResult;
+    printf("[on_result] result returned..\n");
+
+    std_msgs::String msg;
+
+    msg.data = filename.str();
+    std::cout << msg.data << std::endl;
+
+    actionResult.audio_path = msg;
+    printf("sending...\n");
+    TTSActionServer_->setSucceeded(actionResult, "Send tts path.");
+    printf("sending finished...\n");
+}
+
+void TTSActionPreemptCB() {
+    TTSActionServer_->setPreempted();
+}
+
+
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "xf_tts");
     ros::NodeHandle n("~");
@@ -216,6 +259,19 @@ int main(int argc, char* argv[]) {
             std::string("audio_save_path file unknown"));
     n.param("play_command", playCommand,
             std::string("play command unknown"));
+
+    std::string TTSActionName;
+    n.param("/xf_ros/actions/tts/name", TTSActionName,
+                      std::string("/xf_tts/tts_generate"));
+    using namespace std;
+    cout << TTSActionName << endl;
+    TTSActionServer_.reset(
+            new TTSActionServer(n, TTSActionName, false));
+    TTSActionServer_->registerGoalCallback(
+            boost::bind(TTSActionCb));
+    TTSActionServer_->registerPreemptCallback(
+            boost::bind(TTSActionPreemptCB));
+    TTSActionServer_->start();
 
     ros::Subscriber sub = n.subscribe("/xf/tts/words", 1, TTSCallback);
 

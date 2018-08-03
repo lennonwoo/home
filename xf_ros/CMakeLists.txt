@@ -19,7 +19,7 @@ add_action_files(
   DIRECTORY
     action
   FILES
-    XFeiTTS.action
+    TTS.action
     HomeRecognize.action
 )
 
