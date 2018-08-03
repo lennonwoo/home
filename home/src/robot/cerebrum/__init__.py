@@ -1,1 +1,1 @@
-from core import Job, Memory
+from core import Memory

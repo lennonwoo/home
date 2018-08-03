@@ -1,32 +1,33 @@
 #!/usr/bin/env python
-from operator import mul
-from collections import defaultdict
-
-import cv2
 import rospy
 import cv_bridge
 import actionlib
 
 from darknet_ros_msgs.msg import *
 from std_msgs.msg import String
+from sensor_msgs.msg import Image, PointCloud2
+import sensor_msgs.point_cloud2 as pc2
 from facenet_home import Recognition
 
+from ..base import RobotPart
 
-BOX_THRESHOLD = 0.8
+
 FACE_RECORD_THRESHOLD = 160
 
 
-class Perception:
-    def __init__(self, memory):
-        # model_path = rospy.get_param("~model_path")
-        # subscribe_bounding_boxes_topic = rospy.get_param("~subscribe_bounding_boxes_topic")
-        # rospy.Subscriber(subscribe_bounding_boxes_topic, BoundingBoxes, self.callback_bounding_boxes, queue_size=1)
+class Perception(RobotPart):
+    def __init__(self, robot):
+        RobotPart.__init__(self, robot)
 
-        # self.recognition = Recognition(model_path)
+        model_path = rospy.get_param("~model_path")
+        self.recognition = Recognition(model_path)
+
         self.bridge = cv_bridge.CvBridge()
-        self.memory = memory
+        self.yolo_detect = actionlib.SimpleActionClient(self.config.yolo_action_topic, CheckForObjectsAction)
 
-        self.yolo_detect = actionlib.SimpleActionClient("/darknet_ros/check_for_objects", CheckForObjectsAction)
+    def init_face_db(self, imgs):
+        # imgs need be [(img1, name1), (img2, name2)]
+        self.recognition.init_db(imgs)
 
     def get_face(self):
         self.yolo_detect.wait_for_server(rospy.Duration(30))
@@ -41,7 +42,7 @@ class Perception:
 
             self.yolo_detect.send_goal(goal)
 
-            finishe_in_time = self.yolo_detect.wait_for_result(rospy.Duration(300))
+            finishe_in_time = self.yolo_detect.wait_for_result(rospy.Duration(10))
             if not finishe_in_time:
                 continue
 
@@ -50,51 +51,60 @@ class Perception:
 
             for box in bounding_boxes_msg.bounding_boxes:
                 if box.Class == "face":
-                    print("face found")
                     face = self.handle_face(box, bounding_boxes_msg)
 
         return face
 
-    # def callback_bounding_boxes(self, bounding_boxes_msg):
-    #     box_dict = defaultdict(list)
-    #     for box in bounding_boxes_msg.bounding_boxes:
-    #         if box.Class == "face" and box.probability > BOX_THRESHOLD:
-    #             box_dict['face'].append(box)
-    #         elif box.Class == "people" and box.probability > BOX_THRESHOLD:
-    #             box_dict['people'].append(box)
-    #
-    #     if 'face' in box_dict:
-    #         for box in box_dict['face']:
-    #             self.handle_face(box, bounding_boxes_msg)
-    #     if 'people' in box_dict:
-    #         self.handle_people(box_dict['people'])
-    #
     def handle_face(self, box, msg):
         x1 = box.xmin
         x2 = box.xmax
         y1 = box.ymin
         y2 = box.ymax
 
-        cv_image = self.bridge.imgmsg_to_cv2(msg.image, "bgr8")
-
         height = y2 - y1
         width = x2 - x1
 
-        if min(height, width) > FACE_RECORD_THRESHOLD and box.probability > BOX_THRESHOLD:
+        if min(height, width) > FACE_RECORD_THRESHOLD and box.probability > 0.9:
+            cv_image = self.bridge.imgmsg_to_cv2(msg.image, "bgr8")
             return cv_image[y1:y2, x1:x2]
         else:
             return None
 
-    # def handle_people(self, boxes, msg):
-    #     people_list = [(box.xmin, box.xmax, box.ymin, box.ymax) for box in boxes]
-    #     self.memory.add_people()
+    def get_obj(self, obj_name="people"):
+        self.yolo_detect.wait_for_server(rospy.Duration(30))
 
+        people_boxes = []
+        goal = CheckForObjectsGoal()
+
+        msg = String()
+        msg.data = obj_name
+        goal.obj_name = msg
+
+        self.yolo_detect.send_goal(goal)
+
+        finishe_in_time = self.yolo_detect.wait_for_result(rospy.Duration(10))
+        if not finishe_in_time:
+            return None, None
+
+        result = self.yolo_detect.get_result()
+        bounding_boxes_msg = result.bounding_boxes
+
+        for box in bounding_boxes_msg.bounding_boxes:
+            if box.Class == obj_name and box.probability > self.config.box_threshold[obj_name]:
+                x1 = box.xmin
+                x2 = box.xmax
+                y1 = box.ymin
+                y2 = box.ymax
+                people_boxes.append((x1, x2, y1, y2))
+
+        raw_image = self.bridge.imgmsg_to_cv2(bounding_boxes_msg.image, "bgr8")
+
+        return people_boxes, raw_image
 
     def identify(self, img):
-        res = self.recognition.identify(img)
+        known_face = self.recognition.identify(img)
 
-        if res:
-            print(res.name)
+        if known_face:
+            return known_face.name
         else:
-            print("stranger")
-
+            return "stranger"

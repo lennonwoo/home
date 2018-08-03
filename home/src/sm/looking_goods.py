@@ -8,7 +8,6 @@ class LookingGoods(smach.State):
         smach.State.__init__(self, outcomes=['finished'])
 
         self.robot = robot
-        self.bridge = cv_bridge.CvBridge()
 
     def execute(self, userdata):
-        pass
+        return 'finished'

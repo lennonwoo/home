@@ -5,7 +5,7 @@ from geometry_msgs.msg import PoseStamped
 from xml.dom.minidom import Document
 
 
-class Pos2XML():
+class Pos2XML:
     def __init__(self):
         rospy.Subscriber("/move_base_simple/goal", PoseStamped, self.callback)
 
@@ -19,8 +19,8 @@ class Pos2XML():
     def generate_position_element(self, position, quat):
         pose = self.doc.createElement("pose")
 
-        name = self.doc.createElement('name')
-        name.appendChild(self.get_text_node("")
+        name = self.doc.createElement('nav_name')
+        name.appendChild(self.get_text_node(""))
 
         position_ = self.doc.createElement("position")
         position_.appendChild(self.get_text_node(" ".join(str(i)
@@ -51,7 +51,7 @@ class Pos2XML():
 
     def write_xml(self):
         print("write_xml finally")
-        filename = ".cache/poses.xml"
+        filename = ".cache/find_people_poses.xml"
         f = open(filename, "w")
         f.write(self.doc.toprettyxml(indent="  "))
         f.close()
@@ -61,7 +61,6 @@ if __name__ == '__main__':
     rospy.init_node('pos_listener', disable_signals=True)
 
     pos2xml = Pos2XML()
-
 
     try:
         while not rospy.core.is_shutdown():

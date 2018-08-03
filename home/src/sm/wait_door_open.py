@@ -7,6 +7,7 @@ import smach
 
 from sensor_msgs.msg import LaserScan
 
+
 class WaitDoorOpen(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['waiting', 'door_opened'])
@@ -33,7 +34,7 @@ class WaitDoorOpen(smach.State):
         self.mutex.release()
 
     def execute(self, ud):
-        #wait for a maximum of 30 seconds
+        # wait for a maximum of 30 seconds
         for i in range(0, 300):
             self.mutex.acquire()
             if self.door_opened:
