@@ -14,6 +14,8 @@ class MeetGuest(smach.State):
         for i in range(self.guest_num):
             self.robot.remember_job()
             self.robot.confirm_job()
-            self.robot.next_guest()
+
+            if i != self.guest_num - 1:
+                self.robot.next_guest()
 
         return 'finished'

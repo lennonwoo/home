@@ -16,7 +16,7 @@ class Config:
         'shupian': 0.4,
     }
     box_threshold = {
-        'people': 0.8,
+        'people': 0.7,
         'face': 0.9,
 
         'wanglaoji': 0.8,
@@ -45,6 +45,8 @@ class Config:
     asr_action_topic = "/xf_asr/home_recognize"
     yolo_action_topic = "/darknet_ros/check_for_objects"
 
-    debug = False
+    debug = True
 
     job_class = Job
+
+    save_base_path = "/home/lennon/Desktop/"

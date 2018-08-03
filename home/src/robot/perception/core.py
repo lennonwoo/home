@@ -64,7 +64,7 @@ class Perception(RobotPart):
         height = y2 - y1
         width = x2 - x1
 
-        if min(height, width) > FACE_RECORD_THRESHOLD and box.probability > 0.9:
+        if min(height, width) > FACE_RECORD_THRESHOLD and box.probability > self.config.box_threshold['face']:
             cv_image = self.bridge.imgmsg_to_cv2(msg.image, "bgr8")
             return cv_image[y1:y2, x1:x2]
         else:
@@ -73,7 +73,6 @@ class Perception(RobotPart):
     def get_obj(self, obj_name="people"):
         self.yolo_detect.wait_for_server(rospy.Duration(30))
 
-        people_boxes = []
         goal = CheckForObjectsGoal()
 
         msg = String()
@@ -89,6 +88,7 @@ class Perception(RobotPart):
         result = self.yolo_detect.get_result()
         bounding_boxes_msg = result.bounding_boxes
 
+        people_boxes = []
         for box in bounding_boxes_msg.bounding_boxes:
             if box.Class == obj_name and box.probability > self.config.box_threshold[obj_name]:
                 x1 = box.xmin
@@ -96,6 +96,9 @@ class Perception(RobotPart):
                 y1 = box.ymin
                 y2 = box.ymax
                 people_boxes.append((x1, x2, y1, y2))
+
+        if len(people_boxes) == 0:
+            return None, None
 
         raw_image = self.bridge.imgmsg_to_cv2(bounding_boxes_msg.image, "bgr8")
 

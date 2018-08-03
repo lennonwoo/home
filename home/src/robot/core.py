@@ -7,7 +7,7 @@ from body import Leg, Arm
 from cerebrum import Memory
 from perception import Perception
 from communication import Mouth, Ear
-from utils import get_nav_pose, get_poses, display_with_box, robot_sleep
+from utils import get_nav_pose, get_poses, display_with_box, save_img_with_name
 
 
 class Robot:
@@ -26,7 +26,9 @@ class Robot:
         self.last_poses = []
 
     def speak(self, msg):
-        return self._mouth.speak(msg)
+        self._mouth.speak(msg)
+        rospy.sleep(10)
+        return True
 
     def speak_with_wav(self, wav_path):
         os.system(" ".join([self.config.play_command, wav_path]))
@@ -65,7 +67,6 @@ class Robot:
         job = self._memory.get_jobs()[-1]
         msg = "你的名字是%s,我要找%s给你" % (job.people_name, job.obj_name)
         self.speak(msg)
-        robot_sleep(3)
 
     def find_obj(self, obj_name):
         boxes, raw_image = self._perception.get_obj(obj_name)
@@ -96,4 +97,6 @@ class Robot:
             return
 
         for job in self._memory.get_jobs():
+            name = "".join([self.config.save_base_path, job.people_name, '.jpg'])
+            save_img_with_name(name, job.people_img)
             job.debug()

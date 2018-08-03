@@ -82,7 +82,7 @@ def get_poses(boxes, distance=0.5):
     odom_msg = rospy.wait_for_message("/odom", Odometry)
     current_quaternition = odom_msg.pose.pose.orientation
 
-    pt = PointCloudTransformer(pc2_frame_id, current_quaternition)
+    pt = PointCloudTransformer(pc2_frame_id, current_quaternition, distance)
 
     for box in boxes:
         xmin = box[0]
@@ -113,7 +113,7 @@ def get_poses(boxes, distance=0.5):
 
         rospy.loginfo("p is: %s",  p)
 
-        p = pt.transform(p, distance=distance)
+        p = pt.transform(p)
         poses_result.append(Pose(p, current_quaternition))
 
     return poses_result
@@ -130,6 +130,5 @@ def display_with_box(box, img, box_name, window_name="debug"):
     display(window_name, img)
 
 
-def robot_sleep(sleep_time):
-    pass
-
+def save_img_with_name(name, img):
+    cv2.imwrite(name, img)
