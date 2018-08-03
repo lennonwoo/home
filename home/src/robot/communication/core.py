@@ -40,7 +40,7 @@ class Ear(RobotPart):
     def __init__(self, robot):
         RobotPart.__init__(self, robot)
 
-        self._job_parser = self.config.job_parser
+        self._job_class = self.config.job_class
 
         self.xf_asr = actionlib.SimpleActionClient(self.config.asr_action_topic, HomeRecognizeAction)
 
@@ -60,13 +60,12 @@ class Ear(RobotPart):
             self.xf_asr.send_goal(goal)
 
             finished_in_time = self.xf_asr.wait_for_result(rospy.Duration(continue_time))
-            rospy.loginfo("[get_job] finish in time ", finished_in_time)
             if not finished_in_time:
                 rospy.loginfo("[get_job] start again")
                 self.robot.speak_with_wav(self.config.again_wav)
                 continue
 
             msg = self.xf_asr.get_result().msg
-            job = self._job_parser(msg.data)
+            job = self._job_class.job_parser(msg.data)
 
         return job

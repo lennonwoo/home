@@ -32,11 +32,12 @@ class Config:
 
     play_command = "aplay"
     self_intro_wav = "/home/lennon/Desktop/self_intro.wav"
+    body_down_wav = "/home/lennon/Desktop/body_down.wav"
     hello_name_job_wav = "/home/lennon/Desktop/hello_name_job.wav"
     next_guest_wav = "/home/lennon/Desktop/next_guest.wav"
     again_wav = "/home/lennon/Desktop/again.wav"
 
-    people_num = 5
+    people_num = 1
 
     speak_pub_topic = "/xf/tts/words"
     eye_sub_topic = "/camera/color/image_raw"
@@ -46,4 +47,4 @@ class Config:
 
     debug = False
 
-    job_parser = Job.job_parser
+    job_class = Job

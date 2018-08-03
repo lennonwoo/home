@@ -20,6 +20,26 @@ class Job:
         self.obj_name = obj_name
         self.raw_text = raw_text
 
+    def __repr__(self):
+        return """
+        people_img: %s
+        people_name: %s
+        obj_location: %s
+        obj_name: %s
+        raw_text: %s
+        """ % (self.people_img, self.people_name,
+               self.obj_location, self.obj_name,
+               self.raw_text)
+
+    def set_face(self, img):
+        self.people_img = img
+
+    def debug(self):
+        print(self)
+        cv2.imshow("debug", self.people_img)
+        while cv2.waitKey(30) != 27:
+            time.sleep(0.1)
+
     @staticmethod
     def job_parser(result):
         soup = BeautifulSoup(result,  "lxml")
@@ -40,26 +60,6 @@ class Job:
         return Job(people_img, people_name,
                    obj_location, obj_name,
                    raw_text)
-
-    def __repr__(self):
-        return """
-        people_img: %s
-        people_name: %s
-        obj_location: %s
-        obj_name: %s
-        raw_text: %s
-        """ % (self.people_img, self.people_name,
-               self.obj_location, self.obj_name,
-               self.raw_text)
-
-    def set_face(self, img):
-        self.people_img = img
-
-    def debug(self):
-        print(self)
-        cv2.imshow("debug", self.people_img)
-        while cv2.waitKey(30) != 27:
-            time.sleep(0.1)
 
 
 if __name__ == '__main__':
@@ -86,4 +86,4 @@ if __name__ == '__main__':
   </result>
 </nlp>
     """
-    job = Job.job_parser(msg)
+    job = job_parser(msg)
