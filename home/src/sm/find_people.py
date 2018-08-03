@@ -20,7 +20,7 @@ class FindPeople(smach.State):
             self.robot.nav_by_place_name(str(place))
             self.robot.find_obj("people")
 
-            rospy.loginfo(("找到%d个人" % len(self.robot.last_poses)))
+            rospy.loginfo("找到%d个人", len(self.robot.last_poses))
 
             for pose in self.robot.last_poses:
                 self.robot.move(pose)

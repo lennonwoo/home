@@ -11,7 +11,7 @@ class Memory(RobotPart):
     def add_job(self, job):
         self._job_list.append(job)
 
-    def get_job(self):
+    def get_jobs(self):
         return self._job_list
 
 

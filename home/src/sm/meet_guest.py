@@ -10,7 +10,7 @@ class MeetGuest(smach.State):
         self.guest_num = guest_num
 
     def execute(self, userdata):
-        self.robot.self_intro()
+        self.robot.body_down()
         for i in range(self.guest_num):
             self.robot.remember_job()
             self.robot.confirm_job()

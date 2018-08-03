@@ -47,9 +47,12 @@ class Robot:
     def next_guest(self):
         self.speak_with_wav(self.config.next_guest_wav)
 
+    def body_down(self):
+        self.speak_with_wav(self.config.body_down_wav)
+
     def remember_job(self):
         face = self._perception.get_face()
-        self.speak_with_wav(self.config.meet_guest_hint_intro_next_wav)
+        self.speak_with_wav(self.config.hello_name_job_wav)
 
         rospy.loginfo("[remember_job] start get job")
         job = self._ear.get_job()
@@ -59,7 +62,7 @@ class Robot:
         rospy.loginfo("[remember_job] get job!")
 
     def confirm_job(self):
-        job = self._memory.get_job()
+        job = self._memory.get_jobs()[-1]
         msg = "你的名字是%s,我要找%s给你" % (job.people_name, job.obj_name)
         self.speak(msg)
         robot_sleep(3)
@@ -79,7 +82,7 @@ class Robot:
 
     def prepare_find_people(self):
         imgs = []
-        for job in self._memory.get_job():
+        for job in self._memory.get_jobs():
             imgs.append((job.people_img, job.people_name))
 
         self._perception.init_face_db(imgs)
@@ -92,5 +95,5 @@ class Robot:
         if not self.config.debug:
             return
 
-        for job in self._memory.get_job():
+        for job in self._memory.get_jobs():
             job.debug()

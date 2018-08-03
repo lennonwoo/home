@@ -31,33 +31,14 @@ class Leg(RobotPart):
         finished_within_time = self.move_base.wait_for_result(rospy.Duration(300))
 
         if finished_within_time:
-            rospy.loginfo("Arrived at Pose:\nframe_id: %s\n %s" % (frame_id, pose))
+            rospy.loginfo("Arrived at Pose:\nframe_id: %s\n %s", frame_id, pose)
             return True
         else:
             self.move_base.cancel_goal()
             rospy.loginfo("Timed out achieving goal")
             return False
 
-    def debug(self):
-        if not self.config.debug:
-            return
-
-        msg = rospy.wait_for_message("/odom", Odometry)
-        rospy.loginfo(msg)
-
 
 class Arm(RobotPart):
     def __init__(self, robot):
         RobotPart.__init__(self, robot)
-
-
-if __name__ == '__main__':
-    rospy.init_node('leg_test')
-    from core import Robot
-    robot = Robot()
-
-    place_list = sorted([k for k in robot._nav_pose_dict.keys() if k.startswith('people_place')])
-    for place in place_list:
-        robot.nav_by_place_name(str(place))
-        rospy.loginfo(place)
-    rospy.spin()

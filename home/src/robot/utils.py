@@ -49,23 +49,23 @@ class PointCloudTransformer:
         theta = acos(orientation.w) * 2
         self.adjust_x = distance * cos(theta)
         self.adjust_y = distance * sin(theta)
-        rospy.loginfo("Theta: ", theta)
+        rospy.loginfo("Theta: %f", theta)
 
     def transform(self, point):
         # 离物体要有一定距离
         self.ps.point = point
         self.ps.header.frame_id = self.pc2_frame_id
         p = self.listener.transformPoint("base_link", self.ps).point
-        rospy.loginfo("base_link's pose: ", p)
+        rospy.loginfo("base_link's pose: %s", p)
 
         p.x -= self.adjust_x
         p.y -= self.adjust_y
-        rospy.loginfo("after distance's pose: ", p)
+        rospy.loginfo("after distance's pose: %s", p)
 
         self.ps.point = p
         self.ps.header.frame_id = "base_link"
         p = self.listener.transformPoint("map", self.ps).point
-        rospy.loginfo("map's pose: ", p)
+        rospy.loginfo("map's pose: %s", p)
 
         p.z = 0
         return p
@@ -77,7 +77,7 @@ def get_poses(boxes, distance=0.5):
     pc2_msg = rospy.wait_for_message("/camera/depth/color/points", PointCloud2)
     # pc2_msg = rospy.wait_for_message("/camera/aligned_depth_to_color/image_raw", PointCloud2)
     pc2_frame_id = pc2_msg.header.frame_id
-    rospy.loginfo("frame_id is: ", pc2_frame_id)
+    rospy.loginfo("frame_id is: %s", pc2_frame_id)
 
     odom_msg = rospy.wait_for_message("/odom", Odometry)
     current_quaternition = odom_msg.pose.pose.orientation
@@ -111,7 +111,7 @@ def get_poses(boxes, distance=0.5):
         p.y /= count
         p.z /= count
 
-        rospy.loginfo("p is: ",  p)
+        rospy.loginfo("p is: %s",  p)
 
         p = pt.transform(p, distance=distance)
         poses_result.append(Pose(p, current_quaternition))
