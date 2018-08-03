@@ -15,14 +15,15 @@ laser_topic: /scan
 ### ROS services ##########################################
 map_service: static_map
 
-### YOLO part ###
-yolo_always_detect: false
 
 subscribers:
   camera_reading:
      # topic: /camera/rgb/image_raw
      # topic: /usb_cam/image_raw
      topic: /camera/color/image_raw
+     queue_size: 1
+  depth_reading:
+     topic: /camera/depth/image_rect_raw
      queue_size: 1
 
 actions:
@@ -52,3 +53,6 @@ image_view:
   enable_opencv: false
   wait_key_delay: 1
   enable_console_output: false
+
+### YOLO part ###
+yolo_always_detect: false
