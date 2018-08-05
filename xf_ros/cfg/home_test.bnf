@@ -8,9 +8,10 @@
 !slot <item>;
 
 !start <missionstart>;
-<missionstart>:<task1>;
+<missionstart>:<task1><task2>;
 
 <task1>:<mission0><mission1>;
+<task2>:<mission2>;
 
 
 <mission0>:<intro><guestname>;
@@ -21,6 +22,10 @@
 <mission1>:<take><item>;
 <take>:请帮我拿|帮我拿|给我拿|去拿|我要|给我拿|我需要|我想要;
 <item>:牛奶|薯片|可乐|冰红茶|绿茶|矿泉水|雪碧|果粒橙|橙汁|八宝粥;
+
+<mission2>:<yes>|<no>;
+<yes>:是|对;
+<no>:不对|错|不是;
 
 /*
 注:

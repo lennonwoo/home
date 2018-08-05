@@ -6,7 +6,7 @@ import cv2
 from bs4 import BeautifulSoup
 
 
-class JobBase:
+class AsrJobBase:
     def __init__(self,
                  people_img=None,
                  people_name=None,
@@ -28,7 +28,7 @@ class JobBase:
             time.sleep(0.1)
 
 
-class Job(JobBase):
+class AsrJobComplicative(AsrJobBase):
     def __init__(self,
                  people_img=None,
                  people_name=None,
@@ -36,7 +36,7 @@ class Job(JobBase):
                  obj_name=None,
                  raw_text=None,
                  ):
-        JobBase.__init__(self, people_img, people_name, obj_name, raw_text)
+        AsrJobBase.__init__(self, people_img, people_name, obj_name, raw_text)
         self.obj_location = obj_location
 
     def __repr__(self):
@@ -51,7 +51,7 @@ class Job(JobBase):
                self.raw_text)
 
     @staticmethod
-    def job_parser(result):
+    def parser(result):
         soup = BeautifulSoup(result,  "lxml")
         people_img = None
         people_name = soup.guestname.string.encode('utf-8')
@@ -67,19 +67,19 @@ class Job(JobBase):
             obj_location = None
         obj_name = soup.item.string.encode('utf-8')
         raw_text = soup.rawtext.string.encode('utf-8')
-        return Job(people_img, people_name,
-                   obj_location, obj_name,
-                   raw_text)
+        return AsrJobComplicative(people_img, people_name,
+                                  obj_location, obj_name,
+                                  raw_text)
 
 
-class JobTest(JobBase):
+class AsrJobNameObj(AsrJobBase):
     def __init__(self,
                  people_img=None,
                  people_name=None,
                  obj_name=None,
                  raw_text=None,
                  ):
-        JobBase.__init__(self, people_img, people_name, obj_name, raw_text)
+        AsrJobBase.__init__(self, people_img, people_name, obj_name, raw_text)
 
     def __repr__(self):
         return """
@@ -91,14 +91,36 @@ class JobTest(JobBase):
                self.obj_name, self.raw_text)
 
     @staticmethod
-    def job_parser(result):
+    def parser(result):
         soup = BeautifulSoup(result,  "lxml")
         people_img = None
         people_name = soup.guestname.string.encode('utf-8')
         obj_name = soup.item.string.encode('utf-8')
         raw_text = soup.rawtext.string.encode('utf-8')
-        return JobTest(people_img, people_name,
-                   obj_name, raw_text)
+        return AsrJobNameObj(people_img, people_name,
+                             obj_name, raw_text)
+
+
+class AsrConfirm:
+    def __init__(self, confirm_words, confirmed):
+        self.confirm_words = confirm_words
+        self.confirmed = confirmed
+
+    def __repr__(self):
+        return """
+        confirm_words: %s
+        confirmed: %s
+        """ % (self.confirm_words, self.confirmed)
+
+    @staticmethod
+    def parser(result):
+        soup = BeautifulSoup(result,  "lxml")
+        if soup.yes is not None:
+            return AsrConfirm(soup.yes.string.encode('utf-8'), True)
+        elif soup.no is not None:
+            return AsrConfirm(soup.no.string.encode('utf-8'), False)
+        else:
+            return AsrConfirm("error words", False)
 
 
 if __name__ == '__main__':
@@ -125,4 +147,4 @@ if __name__ == '__main__':
   </result>
 </nlp>
     """
-    job = job_parser(msg)
+    job = AsrJobComplicative.parser(msg)

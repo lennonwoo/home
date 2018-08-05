@@ -53,7 +53,7 @@ class Robot:
         self.speak_with_wav(self.config.hello_name_job_wav)
 
         rospy.loginfo("[remember_job] start get job")
-        job = self._ear.get_job()
+        job = self._ear.get_asr(self.config.asr_job_class)
 
         job.set_face(face)
         self._memory.add_job(job)
@@ -61,21 +61,32 @@ class Robot:
 
     def confirm_job(self):
         job = self._memory.get_jobs()[-1]
-        msg = "你的名字是%s,我要找%s给你" % (job.people_name, job.obj_name)
+        msg = "你的名字是%s,我要找%s给你,是吗" % (job.people_name, job.obj_name)
         self.speak(msg)
+        # use asr_confirm_class to return AsrConfirm Class
+        confirmed = self._ear.get_asr(self.config.asr_confirm_class).confirmed
+        if confirmed:
+            return True
+        else:
+            self._memory.delete_last_job()
+            self.remember_job()
+            # want cofirm until true?
+            # self.confirm_job()
 
-    def find_obj(self, obj_name):
+    def find_obj_poses(self, obj_name):
+        """
+        obj_name: str the object name in yolo config that we want to find
+        return: pose in the map
+        """
         boxes, raw_image = self._perception.get_obj(obj_name)
 
         if boxes is None:
-            return False
+            return None
 
         rospy.loginfo("[find obj] %s", obj_name)
-        self.last_poses = get_poses(boxes, self.config.distance[obj_name])
+        poses = get_poses(boxes, self.config.distance[obj_name])
 
-        if self.config.debug:
-            display_with_box(boxes[0], raw_image, obj_name)
-        return True
+        return poses
 
     def prepare_find_people(self):
         imgs = []
@@ -85,8 +96,9 @@ class Robot:
         self._perception.init_face_db(imgs)
 
     def recognize(self):
-        # TODO
-        pass
+        face = self._perception.get_face()
+        name = self._perception.identify(face)
+        self.speak(name)
 
     def debug(self):
         if not self.config.debug:

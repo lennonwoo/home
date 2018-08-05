@@ -46,14 +46,11 @@ class Mouth(RobotPart):
 
         finished_in_time = self.tts_action.wait_for_result(rospy.Duration(10))
         rospy.loginfo("finished in time: %s", finished_in_time)
-        # TODO how to handle the tts generation is too slow?
-        # if not finished_in_time:
-        #     rospy.loginfo("[get_job] start again")
-        #     self.robot.speak_with_wav(self.config.again_wav)
-        #     continue
+        if not finished_in_time:
+            # retry for just once
+            self.tts_action.wait_for_result(rospy.Duration(10))
 
         audio_path = self.tts_action.get_result().audio_path.data
-        print(audio_path)
         return self.speak_with_wav(audio_path)
 
     def speak_with_wav(self, wav_path):
@@ -65,11 +62,9 @@ class Ear(RobotPart):
     def __init__(self, robot):
         RobotPart.__init__(self, robot)
 
-        self._job_class = self.config.job_class
-
         self.xf_asr = actionlib.SimpleActionClient(self.config.asr_action_topic, HomeRecognizeAction)
 
-    def get_job(self):
+    def get_asr(self, asr_class):
         self.xf_asr.wait_for_server(rospy.Duration(3))
         continue_time = self.config.asr_continue_time
 
@@ -91,6 +86,6 @@ class Ear(RobotPart):
                 continue
 
             msg = self.xf_asr.get_result().msg
-            job = self._job_class.job_parser(msg.data)
+            job = asr_class.parser(msg.data)
 
         return job
