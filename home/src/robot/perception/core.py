@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 import rospy
 import cv_bridge
@@ -20,7 +21,7 @@ class Perception(RobotPart):
         RobotPart.__init__(self, robot)
 
         model_path = rospy.get_param("~model_path")
-        self.recognition = Recognition(model_path)
+        # self.recognition = Recognition(model_path)
 
         self.bridge = cv_bridge.CvBridge()
         self.yolo_detect = actionlib.SimpleActionClient(self.config.yolo_action_topic, CheckForObjectsAction)
@@ -110,4 +111,4 @@ class Perception(RobotPart):
         if known_face:
             return known_face.name
         else:
-            return "stranger"
+            return "陌生人"
