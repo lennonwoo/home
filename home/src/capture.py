@@ -29,7 +29,7 @@ class Capture:
             cv2.imshow(CV_WINDOW_NAME, cv_image)
             key = cv2.waitKey(30)
             if key == 27:
-                cv2.imwrite(''.join([self.path, str(self.count), ".jpg"]), cv_image)
+                cv2.imwrite(''.join([self.path, "people", str(self.count), ".jpg"]), cv_image)
                 self.count += 1
         except CvBridgeError as e:
             print(e)

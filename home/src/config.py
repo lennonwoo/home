@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from job import Job
+from job import Job, JobTest
 
 
 class Config:
@@ -7,13 +7,13 @@ class Config:
         'people': 0.5,
         'face': 0.5,
 
-        'wanglaoji': 0.4,
-        'fenda': 0.4,
-        'kele': 0.4,
-        'xuebi': 0.4,
-        'shui': 0.4,
-        'hongcha': 0.4,
-        'shupian': 0.4,
+        'wanglaoji': 0.5,
+        'fenda': 0.5,
+        'kele': 0.5,
+        'xuebi': 0.5,
+        'shui': 0.5,
+        'hongcha': 0.5,
+        'shupian': 0.5,
     }
     box_threshold = {
         'people': 0.7,
@@ -37,7 +37,7 @@ class Config:
     next_guest_wav = "/home/lennon/Desktop/next_guest.wav"
     again_wav = "/home/lennon/Desktop/again.wav"
 
-    people_num = 2
+    people_num = 4
 
     speak_pub_topic = "/xf/tts/words"
     eye_sub_topic = "/camera/color/image_raw"
@@ -48,6 +48,9 @@ class Config:
 
     debug = True
 
-    job_class = Job
+    # job_class = Job
+    job_class = JobTest
 
     save_base_path = "/home/lennon/Desktop/"
+
+    asr_continue_time = 8

@@ -71,7 +71,7 @@ class Ear(RobotPart):
 
     def get_job(self):
         self.xf_asr.wait_for_server(rospy.Duration(3))
-        continue_time = self.config.
+        continue_time = self.config.asr_continue_time
 
         job = None
         while job is None:

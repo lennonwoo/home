@@ -6,7 +6,29 @@ import cv2
 from bs4 import BeautifulSoup
 
 
-class Job:
+class JobBase:
+    def __init__(self,
+                 people_img=None,
+                 people_name=None,
+                 obj_name=None,
+                 raw_text=None,
+                 ):
+        self.people_img = people_img
+        self.people_name = people_name
+        self.obj_name = obj_name
+        self.raw_text = raw_text
+
+    def set_face(self, img):
+        self.people_img = img
+
+    def debug(self):
+        print(self)
+        cv2.imshow("debug", self.people_img)
+        while cv2.waitKey(30) != 27:
+            time.sleep(0.1)
+
+
+class Job(JobBase):
     def __init__(self,
                  people_img=None,
                  people_name=None,
@@ -14,11 +36,8 @@ class Job:
                  obj_name=None,
                  raw_text=None,
                  ):
-        self.people_img = people_img
-        self.people_name = people_name
+        JobBase.__init__(self, people_img, people_name, obj_name, raw_text)
         self.obj_location = obj_location
-        self.obj_name = obj_name
-        self.raw_text = raw_text
 
     def __repr__(self):
         return """
@@ -30,15 +49,6 @@ class Job:
         """ % (self.people_img, self.people_name,
                self.obj_location, self.obj_name,
                self.raw_text)
-
-    def set_face(self, img):
-        self.people_img = img
-
-    def debug(self):
-        print(self)
-        cv2.imshow("debug", self.people_img)
-        while cv2.waitKey(30) != 27:
-            time.sleep(0.1)
 
     @staticmethod
     def job_parser(result):
@@ -60,6 +70,35 @@ class Job:
         return Job(people_img, people_name,
                    obj_location, obj_name,
                    raw_text)
+
+
+class JobTest(JobBase):
+    def __init__(self,
+                 people_img=None,
+                 people_name=None,
+                 obj_name=None,
+                 raw_text=None,
+                 ):
+        JobBase.__init__(self, people_img, people_name, obj_name, raw_text)
+
+    def __repr__(self):
+        return """
+        people_img: %s
+        people_name: %s
+        obj_name: %s
+        raw_text: %s
+        """ % (self.people_img, self.people_name,
+               self.obj_name, self.raw_text)
+
+    @staticmethod
+    def job_parser(result):
+        soup = BeautifulSoup(result,  "lxml")
+        people_img = None
+        people_name = soup.guestname.string.encode('utf-8')
+        obj_name = soup.item.string.encode('utf-8')
+        raw_text = soup.rawtext.string.encode('utf-8')
+        return JobTest(people_img, people_name,
+                   obj_name, raw_text)
 
 
 if __name__ == '__main__':
