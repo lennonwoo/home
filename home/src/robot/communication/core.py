@@ -34,8 +34,7 @@ class Mouth(RobotPart):
         self.pub.publish(msg)
 
     def speak(self, s):
-        result = self.tts_action.wait_for_server(rospy.Duration(3))
-        print(result)
+        self.tts_action.wait_for_server(rospy.Duration(3))
 
         goal = TTSGoal()
 
@@ -71,9 +70,8 @@ class Ear(RobotPart):
         self.xf_asr = actionlib.SimpleActionClient(self.config.asr_action_topic, HomeRecognizeAction)
 
     def get_job(self):
-        res = self.xf_asr.wait_for_server(rospy.Duration(3))
-        print(res)
-        continue_time = 12
+        self.xf_asr.wait_for_server(rospy.Duration(3))
+        continue_time = self.config.
 
         job = None
         while job is None:

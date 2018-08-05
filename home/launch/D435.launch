@@ -31,9 +31,14 @@
   <arg name="accel_fps"           default="1000"/>
   <arg name="enable_imu"          default="true"/>
 
-  <arg name="enable_pointcloud"   default="true"/>
+  <arg name="enable_pointcloud"   default="false"/>
   <arg name="enable_sync"         default="true"/>
   <arg name="align_depth"         default="true"/>
+
+  <!-- <node pkg="depth_image_proc" type="point_cloud_xyz" name="depth_image_proc" output="screen"> -->
+  <!--   <param name="camera_infos" value="/camera/aligned_depth_to_color/camera_info" /> -->
+  <!--   <param name="image_rect" value="/camera/aligned_depth_to_color/image_raw" /> -->
+  <!-- </node> -->
 
   <group ns="camera">
     <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
@@ -74,4 +79,7 @@
       <arg name="enable_imu"               value="$(arg enable_imu)"/>
     </include>
   </group>
+
+
+  <include file="$(find home)/launch/aligned_pointcloud.launch" />
 </launch>

@@ -74,8 +74,7 @@ class PointCloudTransformer:
 def get_poses(boxes, distance=0.5):
     poses_result = []
 
-    pc2_msg = rospy.wait_for_message("/camera/depth/color/points", PointCloud2)
-    # pc2_msg = rospy.wait_for_message("/camera/aligned_depth_to_color/image_raw", PointCloud2)
+    pc2_msg = rospy.wait_for_message("/camera/depth_registered/points", PointCloud2)
     pc2_frame_id = pc2_msg.header.frame_id
     rospy.loginfo("frame_id is: %s", pc2_frame_id)
 
@@ -84,40 +83,53 @@ def get_poses(boxes, distance=0.5):
 
     pt = PointCloudTransformer(pc2_frame_id, current_quaternition, distance)
 
-    for box in boxes:
-        xmin = box[0]
-        xmax = box[1]
-        ymin = box[2]
-        ymax = box[3]
+    while not poses_valid(poses_result):
+        poses_result = []
+        for box in boxes:
+            xmin = box[0]
+            xmax = box[1]
+            ymin = box[2]
+            ymax = box[3]
 
-        uvs = []
-        xstart = (xmin + xmax) / 2
-        ystart = (ymin + ymax) / 2
-        uvs.append((xstart, ystart))
-        # for x in range(xstart-5, xstart+5):
-        #     for y in range(ystart-5, ystart+5):
-        #         uvs.append((x, y))
+            uvs = []
+            xstart = (xmin + xmax) / 2
+            ystart = (ymin + ymax) / 2
+            for x in range(xstart-5, xstart+5):
+                for y in range(ystart-5, ystart+5):
+                    uvs.append((x, y))
 
-        data_out = pc2.read_points(pc2_msg, field_names=['x', 'y', 'z'], skip_nans=False, uvs=uvs)
-        count = 0
-        p = Point(0, 0, 0)
-        for data in data_out:
-            p.x += data[0]
-            p.y += data[1]
-            p.z += data[2]
-            count += 1
+            data_out = pc2.read_points(pc2_msg, field_names=['x', 'y', 'z'], skip_nans=False, uvs=uvs)
+            count = 0
+            p = Point(0, 0, 0)
+            for data in data_out:
+                p.x += data[0]
+                p.y += data[1]
+                p.z += data[2]
+                count += 1
 
-        p.x /= count
-        p.y /= count
-        p.z /= count
+            p.x /= count
+            p.y /= count
+            p.z /= count
 
-        rospy.loginfo("p is: %s",  p)
+            rospy.loginfo("p is: %s",  p)
 
-        p = pt.transform(p)
-        poses_result.append(Pose(p, current_quaternition))
+            p = pt.transform(p)
+            poses_result.append(Pose(p, current_quaternition))
 
     return poses_result
 
+def poses_valid(poses):
+    if len(poses) == 0:
+        return False
+
+    valid = True
+    for pose in poses:
+        x = abs(pose.position.x)
+        y = abs(pose.position.y)
+        if x > 20 or y > 20:
+            valie = False
+
+    return valid
 
 def display_with_box(box, img, box_name, window_name="debug"):
     x1 = box[0]
