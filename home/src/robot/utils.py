@@ -118,6 +118,7 @@ def get_poses(boxes, distance=0.5):
 
     return poses_result
 
+
 def poses_valid(poses):
     if len(poses) == 0:
         return False
@@ -127,9 +128,10 @@ def poses_valid(poses):
         x = abs(pose.position.x)
         y = abs(pose.position.y)
         if x > 20 or y > 20:
-            valie = False
+            valid = False
 
     return valid
+
 
 def display_with_box(box, img, box_name, window_name="debug"):
     x1 = box[0]
