@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import dynamic_reconfigure.client
+
 from job import Job, JobTest
 
 
@@ -54,3 +56,14 @@ class Config:
     save_base_path = "/home/lennon/Desktop/"
 
     asr_continue_time = 8
+
+    @staticmethod
+    def change_inflation(robot_radius=0.18, inflation_radius=0.3):
+        client = dynamic_reconfigure.client.Client("move_base/global_costmap", timeout=10)
+        client.update_configuration({"robot_radius": robot_radius})
+        client = dynamic_reconfigure.client.Client("move_base/global_costmap/inflation_layer", timeout=10)
+        client.update_configuration({"inflation_radius": inflation_radius})
+        client = dynamic_reconfigure.client.Client("move_base/local_costmap", timeout=10)
+        client.update_configuration({"robot_radius": robot_radius})
+        client = dynamic_reconfigure.client.Client("move_base/local_costmap/inflation_layer", timeout=10)
+        client.update_configuration({"inflation_radius": inflation_radius})
