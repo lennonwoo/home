@@ -85,6 +85,10 @@ def main():
                                              Config.confirm_job_wav_path_format))
     gw.generate_wav()
 
+    gw.change_format(NameObjMsgPathGenerator(Config.hello_job_wav_msg_format,
+                                             Config.hello_job_wav_path_format))
+    gw.generate_wav()
+
     gw.change_format(ObjMsgPathGenerator(Config.obj_wav_msg_format,
                                          Config.obj_wav_path_format))
     gw.generate_wav()

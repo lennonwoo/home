@@ -140,16 +140,17 @@ def poses_valid(poses):
     return valid
 
 
-def display_with_box(box, img, box_name, window_name="debug"):
-    x1 = box[0]
-    x2 = box[1]
-    y1 = box[2]
-    y2 = box[3]
-    img = cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0))
-    middle_x = (x1 + x2) / 2
-    cv2.putText(img, box_name, (middle_x, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2, cv2.LINE_AA)
-    display(window_name, img)
+def save_img(path, img):
+    cv2.imwrite(path, img)
 
 
-def save_img_with_name(name, img):
-    cv2.imwrite(name, img)
+def save_img_with_box(path, img, obj_name, boxes):
+    for box in boxes:
+        x1 = box[0]
+        x2 = box[1]
+        y1 = box[2]
+        y2 = box[3]
+        img = cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0))
+        cv2.putText(img, obj_name, (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2, cv2.LINE_AA)
+
+    cv2.imwrite(path, img)

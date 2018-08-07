@@ -1,13 +1,12 @@
 """
 Body include something can move
 """
+import serial
+
 import rospy
 import actionlib
 
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from geometry_msgs.msg import Pose, Point, Quaternion
-from nav_msgs.msg import Odometry
-from tf.transformations import quaternion_from_euler
 
 from base import RobotPart
 
@@ -42,3 +41,12 @@ class Leg(RobotPart):
 class Arm(RobotPart):
     def __init__(self, robot):
         RobotPart.__init__(self, robot)
+
+        port = self.config.arm_port_name
+        baud = self.config.arm_baud
+        self.ser = serial.Serial(port, baud)
+
+    def grasp(self, x=0, y=0):
+        self.ser.open()
+        self.ser.write("test")
+        self.ser.read("test")

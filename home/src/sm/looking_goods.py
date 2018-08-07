@@ -30,6 +30,7 @@ class LookingGoods(smach.State):
 
             if pose is None:
                 continue
+
             if type(pose) == list:
                 pose = pose[0]
 

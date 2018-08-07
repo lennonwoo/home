@@ -9,13 +9,13 @@ class Config:
         'people': 1.1,
         'face': 0.5,
 
-        'wanglaoji': 0.7,
-        'fenda': 0.7,
-        'kele': 0.7,
-        'xuebi': 0.7,
-        'shui': 0.7,
-        'hongcha': 0.7,
-        'shupian': 0.7,
+        'wanglaoji': 0.6,
+        'fenda': 0.6,
+        'kele': 0.6,
+        'xuebi': 0.6,
+        'shui': 0.6,
+        'hongcha': 0.6,
+        'shupian': 0.6,
     }
 
     box_threshold = {
@@ -96,8 +96,6 @@ class Config:
     tts_action_topic = "/xf_tts/tts_generate"
     yolo_action_topic = "/darknet_ros/check_for_objects"
 
-    debug = False
-
     asr_job_class = AsrJobNameObj
     asr_confirm_class = AsrConfirm
     asr_continue_time = 6
@@ -111,6 +109,7 @@ class Config:
 
     self_intro_wav     = wav_base_path + "self_intro.wav"
     body_down_wav      = wav_base_path + "body_down.wav"
+    short_body_down_wav= wav_base_path + "short_body_down.wav"
     hello_name_job_wav = wav_base_path + "hello_name_job.wav"
     next_guest_wav     = wav_base_path + "next_guest.wav"
     again_wav          = wav_base_path + "again.wav"
@@ -125,7 +124,7 @@ class Config:
     confirm_job_wav_msg_format = "你是%s，我要拿%s，是吗"
     confirm_job_wav_path_format = confirm_job_wav_base_path + confirm_job_wav_msg_format + ".wav"
 
-    hello_job_wav_base_path = wav_base_path + "confirm_job/"
+    hello_job_wav_base_path = wav_base_path + "hello_job/"
     hello_job_wav_msg_format = "你好%s，你的%s"
     hello_job_wav_path_format = hello_job_wav_base_path + hello_job_wav_msg_format + ".wav"
 
@@ -158,3 +157,9 @@ class Config:
     # arm part
     arm_port_name = '/dev/ttyUSB0'
     arm_baud = 57600
+
+    # debug part
+    debug = True
+    debug_path = base_path + "debug/"
+    final_debug_path = base_path + "final_debug/"
+

@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
+
 import rospy
 
 from body import Leg, Arm
 from cerebrum import Memory
 from perception import Perception
 from communication import Mouth, Ear
-from utils import get_nav_pose, get_poses, display_with_box, save_img_with_name
+from utils import get_nav_pose, get_poses, save_img, save_img_with_box
 
 
 class Robot:
@@ -22,6 +24,7 @@ class Robot:
         self._mouth = Mouth(self)
 
         self.last_poses = []
+        self.find_obj_times = defaultdict(int)
 
     def speak(self, msg):
         self._mouth.speak_via_action(msg)
@@ -47,6 +50,9 @@ class Robot:
 
     def speak_body_down(self):
         self.speak_with_wav(self.config.body_down_wav)
+
+    def speak_short_body_down(self):
+        self.speak_with_wav(self.config.short_body_down_wav)
 
     def remember_job(self):
         self.lastface = self._perception.get_face()
@@ -88,6 +94,10 @@ class Robot:
 
     def add_job_with_face(self, job, face):
         job.set_face(face)
+        if self.config.debug:
+            path = "".join([self.config.debug_path, job.people_name, job.obj_name, '.jpg'])
+            save_img(path, job.people_img)
+
         self._memory.add_job(job)
 
     def find_obj_poses(self, obj_name):
@@ -100,6 +110,12 @@ class Robot:
 
         if boxes is None:
             return None
+
+        if self.config.debug:
+            path = "".join([self.config.debug_path, obj_name,
+                            str(self.find_obj_times[obj_name]), '.jpg'])
+            save_img_with_box(path, raw_image, obj_name, boxes)
+            self.find_obj_times[obj_name] += 1
 
         rospy.loginfo("[find obj] %s", obj_name)
         poses = get_poses(boxes, self.config.distance[obj_name])
@@ -114,13 +130,13 @@ class Robot:
         self._perception.init_face_db(imgs)
 
     def recognize(self):
-        self.speak_body_down()
+        self.speak_short_body_down()
         face = self._perception.get_face()
         name = self._perception.identify(face)
 
         if self._memory.exist_name(name):
             job = self._memory.get_job_by_name(name)
-            wav_path = self.config.broadcast_job_wav_path_format % (job.people_name,
+            wav_path = self.config.hello_job_wav_path_format % (job.people_name,
                                                                     job.obj_name)
             self.speak_with_wav(wav_path)
         else:
@@ -131,6 +147,6 @@ class Robot:
 
     def debug(self):
         for job in self._memory.get_jobs():
-            name = "".join([self.config.base_path, job.people_name, job.obj_name, '.jpg'])
-            save_img_with_name(name, job.people_img)
+            path = "".join([self.config.final_debug_path, job.people_name, job.obj_name, '.jpg'])
+            save_img(path, job.people_img)
             job.debug()

@@ -13,7 +13,7 @@ class FindPeople(smach.State):
         self.people_founded = 0
 
     def execute(self, userdata):
-        # self.robot.prepare_find_people()
+        self.robot.prepare_find_people()
 
         place_list = sorted([k for k in self.robot._nav_pose_dict.keys() if k.startswith('people_place')])
         for place in place_list:

@@ -13,6 +13,6 @@
   <!-- Move base -->
   <include file="$(find turtlebot_navigation)/launch/includes/move_base.launch.xml" />
 
-   <!--<node name="RVIZ" pkg="rviz" type="rviz" args=" -d $(find home)/rviz/home.rviz" />-->
+   <!-- <node name="RVIZ" pkg="rviz" type="rviz" args=" -d $(find home)/rviz/home.rviz" /> -->
 
 </launch>

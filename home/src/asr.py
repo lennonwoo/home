@@ -128,23 +128,17 @@ if __name__ == '__main__':
 <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
 <nlp>
   <version>1.1</version>
-  <rawtext>我是拉文到厨房冰箱拿可乐给我</rawtext>
-  <confidence>53</confidence>
-  <engine>local</engine>
+  <rawtext>是</rawtext>
   <result>
-    <focus>intro|guestname|go|kitchen|kd|grasp|item|give</focus>
-    <confidence>59|62|66|41|44|63|92|55</confidence>
     <object>
-      <intro id="401">我是</intro>
-      <guestname id="4000">拉文</guestname>
-      <go id="101">到</go>
-      <kitchen id="1300">厨房</kitchen>
-      <kd id="1301">冰箱</kd>
-      <grasp id="201">拿</grasp>
-      <item id="2003">可乐</item>
-      <give id="302">给我</give>
+      <yes id="401">是</yes>
+      <no id="4000">拉文</no>
     </object>
   </result>
 </nlp>
     """
-    job = AsrJobComplicative.parser(msg)
+    soup = BeautifulSoup(msg,  "lxml")
+    if soup.yes is not None:
+        print soup.yes.string
+    elif soup.no is not None:
+        print soup.no
