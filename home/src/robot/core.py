@@ -24,7 +24,7 @@ class Robot:
         self.last_poses = []
 
     def speak(self, msg):
-        self._mouth.speak(msg)
+        self._mouth.speak_via_action(msg)
         return True
 
     def speak_with_wav(self, wav_path):
@@ -36,45 +36,63 @@ class Robot:
 
         return self._leg.move(pose)
 
-    def move(self, pose):
-        self._leg.move(pose)
+    def move(self, pose, frame_id="map"):
+        self._leg.move(pose, frame_id)
 
-    def self_intro(self):
+    def speak_self_intro(self):
         self.speak_with_wav(self.config.self_intro_wav)
 
-    def next_guest(self):
+    def speak_next_guest(self):
         self.speak_with_wav(self.config.next_guest_wav)
 
-    def body_down(self):
+    def speak_body_down(self):
         self.speak_with_wav(self.config.body_down_wav)
 
     def remember_job(self):
-        face = self._perception.get_face()
+        self.lastface = self._perception.get_face()
         self.speak_with_wav(self.config.hello_name_job_wav)
 
         rospy.loginfo("[remember_job] start get job")
         job = self._ear.get_asr(self.config.asr_job_class)
+        rospy.loginfo("[remember_job] finish get job!")
 
-        job.set_face(face)
-        self._memory.add_job(job)
-        rospy.loginfo("[remember_job] get job!")
+        self.add_job_with_face(job, self.lastface)
+        rospy.loginfo("[remember_job] job added!")
+
+    def broadcast_heard_job(self):
+        job = self._memory.get_last_job()
+        wav_path = self.config.broadcast_job_wav_path_format % (job.people_name, job.obj_name)
+        self.speak_with_wav(wav_path)
 
     def confirm_job(self):
-        job = self._memory.get_jobs()[-1]
-        msg = "你的名字是%s,我要找%s给你,是吗" % (job.people_name, job.obj_name)
-        self.speak(msg)
-        # use asr_confirm_class to return AsrConfirm Class
+        job = self._memory.get_last_job()
+
+        wav_path = self.config.confirm_job_wav_path_format % (job.people_name, job.obj_name)
+        self.speak_with_wav(wav_path)
+
         confirmed = self._ear.get_asr(self.config.asr_confirm_class).confirmed
+
         if confirmed:
             return True
         else:
             self._memory.delete_last_job()
-            self.remember_job()
+            self.speak_with_wav(self.config.then_again_wav)
+
+            rospy.loginfo("[remember_job] start get job")
+            job = self._ear.get_asr(self.config.asr_job_class)
+            self.add_job_with_face(job, self.lastface)
+            rospy.loginfo("[remember_job] get job!")
+
             # want cofirm until true?
             # self.confirm_job()
 
+    def add_job_with_face(self, job, face):
+        job.set_face(face)
+        self._memory.add_job(job)
+
     def find_obj_poses(self, obj_name):
         """
+        find obj poses by odom!
         obj_name: str the object name in yolo config that we want to find
         return: pose in the map
         """
@@ -96,15 +114,23 @@ class Robot:
         self._perception.init_face_db(imgs)
 
     def recognize(self):
+        self.speak_body_down()
         face = self._perception.get_face()
         name = self._perception.identify(face)
-        self.speak(name)
+
+        if self._memory.exist_name(name):
+            job = self._memory.get_job_by_name(name)
+            wav_path = self.config.broadcast_job_wav_path_format % (job.people_name,
+                                                                    job.obj_name)
+            self.speak_with_wav(wav_path)
+        else:
+            self.speak_with_wav(self.config.stranget_wav)
+
+    def get_jobs(self):
+        return self._memory.get_jobs()
 
     def debug(self):
-        if not self.config.debug:
-            return
-
         for job in self._memory.get_jobs():
-            name = "".join([self.config.save_base_path, job.people_name, '.jpg'])
+            name = "".join([self.config.base_path, job.people_name, job.obj_name, '.jpg'])
             save_img_with_name(name, job.people_img)
             job.debug()
