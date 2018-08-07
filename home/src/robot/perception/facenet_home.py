@@ -68,6 +68,7 @@ class Recognition:
                 best = dist
                 face.name = db.name
 
+        print("best distance", best)
         if best < Config.distance_threshold:
             return face
         else:

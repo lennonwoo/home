@@ -92,6 +92,7 @@ void on_result(const char *result, char is_last, void *ptr) {
 
 void on_speech_begin() {
     printf("Start Listening...\n");
+    system("aplay /home/lennon/Desktop/on.wav");
 }
 
 void on_speech_end(int reason) {

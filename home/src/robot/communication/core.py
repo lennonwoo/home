@@ -10,13 +10,6 @@ from xf_ros.msg import *
 from ..base import RobotPart
 
 
-class Eye(RobotPart):
-    def __init__(self, robot):
-        RobotPart.__init__(robot)
-
-        self.sub_topic = self.config.eye_sub_topic
-
-
 class Mouth(RobotPart):
     def __init__(self, robot):
         RobotPart.__init__(self, robot)
@@ -33,7 +26,7 @@ class Mouth(RobotPart):
         self.connect_subscribe()
         self.pub.publish(msg)
 
-    def speak(self, s):
+    def speak_via_action(self, s):
         self.tts_action.wait_for_server(rospy.Duration(3))
 
         goal = TTSGoal()
@@ -48,13 +41,18 @@ class Mouth(RobotPart):
         rospy.loginfo("finished in time: %s", finished_in_time)
         if not finished_in_time:
             # retry for just once
+            self.tts_action.send_goal(goal)
             self.tts_action.wait_for_result(rospy.Duration(10))
 
         audio_path = self.tts_action.get_result().audio_path.data
         return self.speak_with_wav(audio_path)
 
     def speak_with_wav(self, wav_path):
-        os.system(" ".join([self.config.play_command, wav_path]))
+        if self.config.play_command == "aplay":
+            os.system(" ".join([self.config.play_command, wav_path]))
+        elif self.config.play_command == "play":
+            speed_up = self.config.wav_speed_up
+            os.system(" ".join([self.config.play_command, wav_path, "tempo", speed_up]))
         return True
 
 

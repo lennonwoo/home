@@ -21,7 +21,7 @@ class Perception(RobotPart):
         RobotPart.__init__(self, robot)
 
         model_path = rospy.get_param("~model_path")
-        # self.recognition = Recognition(model_path)
+        self.recognition = Recognition(model_path)
 
         self.bridge = cv_bridge.CvBridge()
         self.yolo_detect = actionlib.SimpleActionClient(self.config.yolo_action_topic, CheckForObjectsAction)
@@ -31,7 +31,7 @@ class Perception(RobotPart):
         self.recognition.init_db(imgs)
 
     def get_face(self):
-        self.yolo_detect.wait_for_server(rospy.Duration(30))
+        self.yolo_detect.wait_for_server(rospy.Duration(3))
 
         face = None
         while face is None:
@@ -43,7 +43,7 @@ class Perception(RobotPart):
 
             self.yolo_detect.send_goal(goal)
 
-            finishe_in_time = self.yolo_detect.wait_for_result(rospy.Duration(10))
+            finishe_in_time = self.yolo_detect.wait_for_result(rospy.Duration(3))
             if not finishe_in_time:
                 continue
 
@@ -72,7 +72,7 @@ class Perception(RobotPart):
             return None
 
     def get_obj(self, obj_name="people"):
-        self.yolo_detect.wait_for_server(rospy.Duration(30))
+        self.yolo_detect.wait_for_server(rospy.Duration(3))
 
         goal = CheckForObjectsGoal()
 
@@ -82,7 +82,7 @@ class Perception(RobotPart):
 
         self.yolo_detect.send_goal(goal)
 
-        finishe_in_time = self.yolo_detect.wait_for_result(rospy.Duration(10))
+        finishe_in_time = self.yolo_detect.wait_for_result(rospy.Duration(3))
         if not finishe_in_time:
             return None, None
 

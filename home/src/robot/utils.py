@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from math import acos, cos, sin
+from math import acos, asin, cos, sin
 
 import tf
 import cv2
@@ -10,6 +10,9 @@ from bs4 import BeautifulSoup
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import PointCloud2
 from geometry_msgs.msg import Pose, Point, Quaternion, PointStamped
+
+
+PI = 3.1415926535897931
 
 
 def get_nav_pose(file_path):
@@ -47,8 +50,12 @@ class PointCloudTransformer:
 
         # for 2D, orientation.w = cos(theta/2)
         theta = acos(orientation.w) * 2
-        self.adjust_x = distance * cos(theta)
-        self.adjust_y = distance * sin(theta)
+        if asin(orientation.z) < 0:
+            theta += PI
+
+        # self.adjust_x = distance * cos(theta)
+        # self.adjust_y = distance * sin(theta)
+        self.distance = distance
         rospy.loginfo("Theta: %f", theta)
 
     def transform(self, point):
@@ -58,8 +65,8 @@ class PointCloudTransformer:
         p = self.listener.transformPoint("base_link", self.ps).point
         rospy.loginfo("base_link's pose: %s", p)
 
-        p.x -= self.adjust_x
-        p.y -= self.adjust_y
+        p.x -= self.distance
+        # p.y -= self.adjust_y
         rospy.loginfo("after distance's pose: %s", p)
 
         self.ps.point = p
@@ -111,10 +118,10 @@ def get_poses(boxes, distance=0.5):
             p.y /= count
             p.z /= count
 
-            rospy.loginfo("p is: %s",  p)
-
             p = pt.transform(p)
-            poses_result.append(Pose(p, current_quaternition))
+            pose = Pose(p, current_quaternition)
+            rospy.loginfo("pose is: %s",  pose)
+            poses_result.append(pose)
 
     return poses_result
 

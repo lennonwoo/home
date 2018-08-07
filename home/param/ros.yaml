@@ -31,7 +31,7 @@ actions:
     name: /darknet_ros/check_for_objects
   home_asr:
     name: /xf_asr/home_recognize
-  delay_time: 30
+  delay_time: 15
 
 publishers:
   object_detector:
@@ -49,9 +49,9 @@ publishers:
     queue_size: 1
     latch: true
 
+test_model: false
 yolo_always_detect: false
 image_view:
   enable_opencv: false
-  wait_key_delay: 1
+  wait_key_delay: 3
   enable_console_output: false
-
