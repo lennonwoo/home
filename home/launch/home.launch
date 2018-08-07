@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<launch>
-    <!-- <include file="$(find home)/launch/yolo.launch" /> -->
-    <include file="$(find home)/launch/D435.launch" />
-    <include file="$(find home)/launch/navigation.launch" />
-    <!-- <include file="$(find home)/launch/facenet.launch" /> -->
-</launch>
