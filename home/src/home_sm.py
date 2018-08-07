@@ -5,9 +5,9 @@ import rospy
 import smach
 import smach_ros
 
+from robot import Robot
 from config import Config
 from sm import WaitDoorOpen, MeetGuest, LookingGoods, FindPeople
-from robot import Robot
 
 
 def main():
@@ -15,14 +15,14 @@ def main():
 
     robot = Robot(Config)
 
-    @smach.cb_interface(outcomes=['finished'])
-    def intro_self(userdata):
-        robot.speak_with_wav(Config.self_intro_wav)
-        return 'finished'
-
     @smach.cb_interface(outcomes=['arrived', 'retry'])
     def nav_to_meet_guest(userdata):
         return 'arrived' if robot.nav_by_place_name('meet_guest') else 'retry'
+
+    @smach.cb_interface(outcomes=['finished'])
+    def self_intro(userdata):
+        robot.speak_self_intro()
+        return 'finished'
 
     @smach.cb_interface(outcomes=['arrived', 'retry'])
     def leaving(userdata):
@@ -43,7 +43,7 @@ def main():
                                transitions={'arrived': 'SelfIntro',
                                             'retry': 'NavToDiningRoom',})
         #
-        smach.StateMachine.add('SelfIntro', smach.CBState(intro_self),
+        smach.StateMachine.add('SelfIntro', smach.CBState(self_intro),
                                transitions={'finished': 'MeetGuest',})
 
         smach.StateMachine.add('MeetGuest', MeetGuest(robot, Config.people_num),
@@ -64,11 +64,15 @@ def main():
                                transitions={'finished': 'DONE',})
 
     try:
-        sis = smach_ros.IntrospectionServer('smach_server', sm, '/SM_ROOT')
-        sis.start()
+        if Config.debug:
+            sis = smach_ros.IntrospectionServer('smach_server', sm, '/SM_ROOT')
+            sis.start()
+
         sm.execute()
         rospy.spin()
-        sis.stop()
+
+        if Config.debug:
+            sis.stop()
     except KeyboardInterrupt:
         rospy.signal_shutdown('All done.')
 

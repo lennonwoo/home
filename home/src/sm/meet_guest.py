@@ -10,12 +10,13 @@ class MeetGuest(smach.State):
         self.guest_num = guest_num
 
     def execute(self, userdata):
-        self.robot.body_down()
+        self.robot.speak_body_down()
         for i in range(self.guest_num):
             self.robot.remember_job()
-            self.robot.confirm_job()
+            self.robot.broadcast_heard_job()
+            # self.robot.confirm_job()
 
             if i != self.guest_num - 1:
-                self.robot.next_guest()
+                self.robot.speak_next_guest()
 
         return 'finished'
