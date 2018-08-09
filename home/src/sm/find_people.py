@@ -2,6 +2,8 @@
 import smach
 import rospy
 
+from utils import get_sorted_poses
+
 
 class FindPeople(smach.State):
     def __init__(self, robot):
@@ -15,7 +17,7 @@ class FindPeople(smach.State):
     def execute(self, userdata):
         self.robot.prepare_find_people()
 
-        place_list = sorted([k for k in self.robot._nav_pose_dict.keys() if k.startswith('people_place')])
+        place_list = sorted([k for k in self.robot._nav_pose_dict.keys() if k.startswith('find_people_location')])
         for place in place_list:
             self.robot.nav_by_place_name(str(place))
             poses = self.robot.find_obj_poses("people")
@@ -26,6 +28,8 @@ class FindPeople(smach.State):
             rospy.loginfo("找到%d个人", len(poses))
 
             if len(poses) > 0:
+                poses = get_sorted_poses(poses)
+
                 self.robot.config.decrease_costmap()
                 for pose in poses:
                     self.robot.move(pose)

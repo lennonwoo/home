@@ -2,6 +2,8 @@
 import smach
 import rospy
 
+from utils import get_sorted_poses
+
 
 class LookingGoods(smach.State):
     def __init__(self, robot):
@@ -13,20 +15,17 @@ class LookingGoods(smach.State):
         self.robot.nav_by_place_name("obj_place")
         self.robot.config.decrease_costmap()
 
-        # three dict
-        obj_pose = self.robot.config.get_obj_pose()
+        # get three dict
         obj_en2cn = self.robot.config.get_obj_en2cn()
         obj_cn2en = self.robot.config.get_obj_cn2en()
+        pose_name_dict = {}
 
-        # TODO too dirty try to fix it...
+        # first we get all obj's pose
+        poses = []
         for job in self.robot.get_jobs():
             obj_en = obj_cn2en[job.obj_name]
             rospy.loginfo("one obj: %s", obj_en)
-            obj_pose[obj_en] = self.robot.find_obj_poses(obj_en)
-
-        for job in self.robot.get_jobs():
-            obj_en = obj_cn2en[job.obj_name]
-            pose = obj_pose[obj_en]
+            pose = self.robot.find_obj_poses(obj_en)
 
             if pose is None:
                 continue
@@ -34,13 +33,20 @@ class LookingGoods(smach.State):
             if type(pose) == list:
                 pose = pose[0]
 
-            if self.robot.config.debug:
-                print(obj_en, pose)
+            # cannot direct give pose obj_name attr
+            # pose.target_obj_name = job.obj_name    == will be error ==
+            pose_name_dict[pose] = job.obj_name
+            poses.append(pose)
 
-            self.robot.move(pose)
-            # TODO change speak logic to use arm to get object
-            wav_path = self.robot.config.obj_wav_path_format % job.obj_name
-            self.robot.speak_with_wav(wav_path)
+        # then sort poses and move robot
+        if len(poses) > 0:
+            poses = get_sorted_poses(poses)
+            # move to the obj
+            for pose in poses:
+                self.robot.move(pose)
+                wav_path = self.robot.config.obj_wav_path_format % pose_name_dict[pose]
+                self.robot.speak_with_wav(wav_path)
+                # self.robot._arm.grasp(pose_name_dict[pose])
 
         self.robot.config.increase_costmap()
 

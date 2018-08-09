@@ -9,8 +9,10 @@ from sensor_msgs.msg import LaserScan
 
 
 class WaitDoorOpen(smach.State):
-    def __init__(self):
+    def __init__(self, robot):
         smach.State.__init__(self, outcomes=['waiting', 'door_opened'])
+
+        self.robot = robot
 
         self.mutex = threading.Lock()
         self.door_opened = False
