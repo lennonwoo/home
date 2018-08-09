@@ -8,35 +8,39 @@ from bs4 import BeautifulSoup
 
 class AsrJobBase:
     def __init__(self,
-                 people_img=None,
+                 people_faces=None,
                  people_name=None,
                  obj_name=None,
                  raw_text=None,
                  ):
-        self.people_img = people_img
+        self.people_faces = people_faces
         self.people_name = people_name
         self.obj_name = obj_name
         self.raw_text = raw_text
 
-    def set_face(self, img):
-        self.people_img = img
+    def add_faces(self, faces):
+        self.people_faces = faces
+
+    def get_faces(self):
+        return self.people_faces
 
     def debug(self):
         print(self)
-        cv2.imshow("debug", self.people_img)
-        while cv2.waitKey(30) != 27:
-            time.sleep(0.1)
+        for face in self.get_faces():
+            cv2.imshow("debug", face)
+            while cv2.waitKey(30) != 27:
+                time.sleep(0.1)
 
 
 class AsrJobComplicative(AsrJobBase):
     def __init__(self,
-                 people_img=None,
+                 people_faces=None,
                  people_name=None,
                  obj_location=None,
                  obj_name=None,
                  raw_text=None,
                  ):
-        AsrJobBase.__init__(self, people_img, people_name, obj_name, raw_text)
+        AsrJobBase.__init__(self, people_faces, people_name, obj_name, raw_text)
         self.obj_location = obj_location
 
     def __repr__(self):
@@ -46,14 +50,14 @@ class AsrJobComplicative(AsrJobBase):
         obj_location: %s
         obj_name: %s
         raw_text: %s
-        """ % (self.people_img, self.people_name,
+        """ % (self.people_faces, self.people_name,
                self.obj_location, self.obj_name,
                self.raw_text)
 
     @staticmethod
     def parser(result):
         soup = BeautifulSoup(result,  "lxml")
-        people_img = None
+        people_faces = None
         people_name = soup.guestname.string.encode('utf-8')
         if soup.livingroom:
             obj_location = soup.livingroom.string.encode('utf-8')
@@ -67,19 +71,19 @@ class AsrJobComplicative(AsrJobBase):
             obj_location = None
         obj_name = soup.item.string.encode('utf-8')
         raw_text = soup.rawtext.string.encode('utf-8')
-        return AsrJobComplicative(people_img, people_name,
+        return AsrJobComplicative(people_faces, people_name,
                                   obj_location, obj_name,
                                   raw_text)
 
 
 class AsrJobNameObj(AsrJobBase):
     def __init__(self,
-                 people_img=None,
+                 people_faces=None,
                  people_name=None,
                  obj_name=None,
                  raw_text=None,
                  ):
-        AsrJobBase.__init__(self, people_img, people_name, obj_name, raw_text)
+        AsrJobBase.__init__(self, people_faces, people_name, obj_name, raw_text)
 
     def __repr__(self):
         return """
@@ -87,17 +91,17 @@ class AsrJobNameObj(AsrJobBase):
         people_name: %s
         obj_name: %s
         raw_text: %s
-        """ % (self.people_img, self.people_name,
+        """ % (self.people_faces, self.people_name,
                self.obj_name, self.raw_text)
 
     @staticmethod
     def parser(result):
         soup = BeautifulSoup(result,  "lxml")
-        people_img = None
+        people_faces = None
         people_name = soup.guestname.string.encode('utf-8')
         obj_name = soup.item.string.encode('utf-8')
         raw_text = soup.rawtext.string.encode('utf-8')
-        return AsrJobNameObj(people_img, people_name,
+        return AsrJobNameObj(people_faces, people_name,
                              obj_name, raw_text)
 
 

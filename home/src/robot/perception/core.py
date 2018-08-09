@@ -21,7 +21,7 @@ class Perception(RobotPart):
         RobotPart.__init__(self, robot)
 
         model_path = rospy.get_param("~model_path")
-        self.recognition = Recognition(model_path)
+        self.recognition = Recognition(model_path) if self.config.enable_facenet else None
 
         self.bridge = cv_bridge.CvBridge()
         self.yolo_detect = actionlib.SimpleActionClient(self.config.yolo_action_topic, CheckForObjectsAction)
@@ -89,21 +89,21 @@ class Perception(RobotPart):
         result = self.yolo_detect.get_result()
         bounding_boxes_msg = result.bounding_boxes
 
-        people_boxes = []
+        obj_boxes = []
         for box in bounding_boxes_msg.bounding_boxes:
             if box.Class == obj_name and box.probability > self.config.box_threshold[obj_name]:
                 x1 = box.xmin
                 x2 = box.xmax
                 y1 = box.ymin
                 y2 = box.ymax
-                people_boxes.append((x1, x2, y1, y2))
+                obj_boxes.append((x1, x2, y1, y2))
 
-        if len(people_boxes) == 0:
+        if len(obj_boxes) == 0:
             return None, None
 
         raw_image = self.bridge.imgmsg_to_cv2(bounding_boxes_msg.image, "bgr8")
 
-        return people_boxes, raw_image
+        return obj_boxes, raw_image
 
     def identify(self, img):
         known_face = self.recognition.identify(img)

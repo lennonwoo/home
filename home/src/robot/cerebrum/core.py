@@ -7,6 +7,7 @@ class Memory(RobotPart):
         RobotPart.__init__(self, robot)
 
         self._job_list = []
+        self._face_list = []
 
     def add_job(self, job):
         self._job_list.append(job)
@@ -14,8 +15,6 @@ class Memory(RobotPart):
     def delete_last_job(self):
         if len(self._job_list) > 0:
             self._job_list.pop()
-        else:
-            return None
 
     def get_last_job(self):
         if len(self._job_list) > 0:
@@ -37,3 +36,13 @@ class Memory(RobotPart):
         for job in self._job_list:
             if name == job.people_name:
                 return job
+
+    def add_face(self, face):
+        self._face_list.append(face)
+
+    def get_last_faces_by_config(self):
+        n = self.config.facenet_each_person_face_num
+        return self._face_list[-n:]
+
+    def get_last_n_faces(self, n):
+        return self._face_list[-n:]

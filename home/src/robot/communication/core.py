@@ -77,7 +77,7 @@ class Ear(RobotPart):
 
             self.xf_asr.send_goal(goal)
 
-            finished_in_time = self.xf_asr.wait_for_result(rospy.Duration(continue_time))
+            finished_in_time = self.xf_asr.wait_for_result(rospy.Duration(continue_time + 2))
             if not finished_in_time:
                 rospy.loginfo("[get_job] start again")
                 self.robot.speak_with_wav(self.config.again_wav)

@@ -23,7 +23,7 @@ def timing(f):
 
 class Config:
     gpu_memory_fraction = 0.3
-    distance_threshold = 0.8
+    distance_threshold = 1.0
 
     
 class Face:
@@ -64,6 +64,7 @@ class Recognition:
         best = 10.0
         for db in self.face_db:
             dist = np.sqrt(np.sum(np.square(np.subtract(face.code, db.code))))
+            print("people's name: %s, dist: %f" % (db.name, dist))
             if dist < best:
                 best = dist
                 face.name = db.name

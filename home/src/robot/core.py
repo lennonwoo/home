@@ -7,13 +7,13 @@ from body import Leg, Arm
 from cerebrum import Memory
 from perception import Perception
 from communication import Mouth, Ear
-from utils import get_nav_pose, get_poses, save_img, save_img_with_box
+from utils import get_nav_pose, save_img, save_img_with_box
+from utils import get_poses, get_poses_by_base_link_xy
 
 
 class Robot:
     def __init__(self, config):
         self.config = config
-        self._nav_pose_list_index = 0
         self._nav_pose_list, self._nav_pose_dict = get_nav_pose(self.config.poses_file_path)
 
         self._memory = Memory(self)
@@ -55,14 +55,23 @@ class Robot:
         self.speak_with_wav(self.config.short_body_down_wav)
 
     def remember_job(self):
-        self.lastface = self._perception.get_face()
-        self.speak_with_wav(self.config.hello_name_job_wav)
+        self.speak_short_body_down()
+
+        for i in range(self.config.facenet_each_person_face_num):
+            face = self._perception.get_face()
+            self._memory.add_face(face)
+        self.speak_with_wav(self.config.hint_speak_name_job_wav)
 
         rospy.loginfo("[remember_job] start get job")
-        job = self._ear.get_asr(self.config.asr_job_class)
+        try:
+            job = self._ear.get_asr(self.config.asr_job_class)
+        except Exception as e:
+            print(e)
+            self.speak_with_wav(self.config.again_wav)
+            job = self._ear.get_asr(self.config.asr_job_class)
         rospy.loginfo("[remember_job] finish get job!")
 
-        self.add_job_with_face(job, self.lastface)
+        self.add_job_with_faces(job, self._memory.get_last_faces_by_config())
         rospy.loginfo("[remember_job] job added!")
 
     def broadcast_heard_job(self):
@@ -70,33 +79,48 @@ class Robot:
         wav_path = self.config.broadcast_job_wav_path_format % (job.people_name, job.obj_name)
         self.speak_with_wav(wav_path)
 
+    def back(self):
+        pose = get_poses_by_base_link_xy(-0.3, 0)
+        self._leg.move(pose)
+
     def confirm_job(self):
         job = self._memory.get_last_job()
 
         wav_path = self.config.confirm_job_wav_path_format % (job.people_name, job.obj_name)
         self.speak_with_wav(wav_path)
 
-        confirmed = self._ear.get_asr(self.config.asr_confirm_class).confirmed
+        try:
+            confirmed = self._ear.get_asr(self.config.asr_confirm_class).confirmed
+        except Exception as e:
+            # TODO just return True if asr get wrong xml?
+            print(e)
+            return True
 
         if confirmed:
             return True
         else:
             self._memory.delete_last_job()
-            self.speak_with_wav(self.config.then_again_wav)
+            self.speak_with_wav(self.config.fault_again_wav)
 
             rospy.loginfo("[remember_job] start get job")
             job = self._ear.get_asr(self.config.asr_job_class)
-            self.add_job_with_face(job, self.lastface)
+            self.add_job_with_faces(job, self._memory.get_last_faces_by_config())
             rospy.loginfo("[remember_job] get job!")
 
             # want cofirm until true?
-            # self.confirm_job()
+            self.confirm_job()
 
-    def add_job_with_face(self, job, face):
-        job.set_face(face)
+    def add_job_with_faces(self, job, faces):
+        job.add_faces(faces)
         if self.config.debug:
-            path = "".join([self.config.debug_path, job.people_name, job.obj_name, '.jpg'])
-            save_img(path, job.people_img)
+            for face in faces:
+                dict_key = "".join([job.people_name, job.obj_name])
+                path = "".join([self.config.debug_path,
+                                job.people_name, job.obj_name,
+                                str(self.find_obj_times[dict_key]),
+                                '.jpg'])
+                save_img(path, face)
+                self.find_obj_times[dict_key] += 1
 
         self._memory.add_job(job)
 
@@ -104,7 +128,7 @@ class Robot:
         """
         find obj poses by odom!
         obj_name: str the object name in yolo config that we want to find
-        return: pose in the map
+        return: pose in the map or None
         """
         boxes, raw_image = self._perception.get_obj(obj_name)
 
@@ -125,7 +149,8 @@ class Robot:
     def prepare_find_people(self):
         imgs = []
         for job in self._memory.get_jobs():
-            imgs.append((job.people_img, job.people_name))
+            for face in job.get_faces():
+                imgs.append((face, job.people_name))
 
         self._perception.init_face_db(imgs)
 
@@ -137,16 +162,21 @@ class Robot:
         if self._memory.exist_name(name):
             job = self._memory.get_job_by_name(name)
             wav_path = self.config.hello_job_wav_path_format % (job.people_name,
-                                                                    job.obj_name)
+                                                                job.obj_name)
             self.speak_with_wav(wav_path)
         else:
-            self.speak_with_wav(self.config.stranget_wav)
+            self.speak_with_wav(self.config.stranger_wav)
 
     def get_jobs(self):
         return self._memory.get_jobs()
 
     def debug(self):
         for job in self._memory.get_jobs():
-            path = "".join([self.config.final_debug_path, job.people_name, job.obj_name, '.jpg'])
-            save_img(path, job.people_img)
+            for i, face in enumerate(job.get_faces()):
+                path = "".join([self.config.final_debug_path,
+                                job.people_name, job.obj_name,
+                                str(i), '.jpg'])
+                save_img(path, face)
+
+        for job in self._memory.get_jobs():
             job.debug()
