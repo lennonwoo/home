@@ -92,7 +92,6 @@ void on_result(const char *result, char is_last, void *ptr) {
 
 void on_speech_begin() {
     printf("Start Listening...\n");
-    system("aplay /home/lennon/Desktop/on.wav");
 }
 
 void on_speech_end(int reason) {
@@ -420,7 +419,20 @@ void ASR::HomeRecognizeActionGoalCB() {
     bnfName = ActionPtr->bnf_name.data;
     continueTime = ActionPtr->continue_time;
 
-    enable_running_ = true;
+    int child_pid = fork();
+    switch( child_pid ) {
+    case -1:
+        perror( "[fork-exec-test] fork failed" );
+        exit(-1);
+        break;
+    case 0:
+        system("play /home/lennon/Desktop/wav/on.wav tempo 1.2");
+        exit(0);
+        break;
+    default:
+        enable_running_ = true;
+        break;
+    }
 }
 
 void ASR::HomeRecognizeActionPreemptCB() {
