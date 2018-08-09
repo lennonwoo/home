@@ -78,6 +78,22 @@ class PointCloudTransformer:
         return p
 
 
+def get_poses_by_base_link_xy(x=0.1, y=0.0):
+    odom_msg = rospy.wait_for_message("/odom", Odometry)
+    current_quaternition = odom_msg.pose.pose.orientation
+
+    listener = tf.TransformListener()
+    listener.waitForTransform("base_link", "map", rospy.Time(0), rospy.Duration(4.0))
+
+    ps = PointStamped()
+    ps.header.stamp = rospy.Time(0)
+    ps.header.frame_id = "base_link"
+    ps.point = Point(x, y, 0)
+    p = listener.transformPoint("map", ps).point
+
+    return Pose(p, current_quaternition)
+
+
 def get_poses(boxes, distance=0.5):
     poses_result = []
 
@@ -91,6 +107,7 @@ def get_poses(boxes, distance=0.5):
     pt = PointCloudTransformer(pc2_frame_id, current_quaternition, distance)
 
     while not poses_valid(poses_result):
+        # need reset poses first
         poses_result = []
         for box in boxes:
             xmin = box[0]
@@ -132,6 +149,7 @@ def poses_valid(poses):
 
     valid = True
     for pose in poses:
+        # avoid deep image inaccurate, you need to change num limit by the map
         x = abs(pose.position.x)
         y = abs(pose.position.y)
         if x > 20 or y > 20:
@@ -154,3 +172,5 @@ def save_img_with_box(path, img, obj_name, boxes):
         cv2.putText(img, obj_name, (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2, cv2.LINE_AA)
 
     cv2.imwrite(path, img)
+
+
