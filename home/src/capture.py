@@ -20,6 +20,8 @@ class Capture:
             callback = self.callback_color
         elif 'depth' in sub_image_topic:
             callback = self.callback_depth
+        elif 'usb_cam' in sub_image_topic:
+            callback = self.callback_color
 
         rospy.Subscriber(sub_image_topic, Image, callback, queue_size=1)
 
@@ -29,7 +31,7 @@ class Capture:
             cv2.imshow(CV_WINDOW_NAME, cv_image)
             key = cv2.waitKey(30)
             if key == 27:
-                cv2.imwrite(''.join([self.path, "people", str(self.count), ".jpg"]), cv_image)
+                cv2.imwrite(''.join([self.path, "home_final", str(self.count), ".jpg"]), cv_image)
                 self.count += 1
         except CvBridgeError as e:
             print(e)
