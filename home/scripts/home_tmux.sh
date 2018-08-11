@@ -10,5 +10,5 @@ sleep 4
 tmux send-keys -t 0.2 'cd ~/home_ws && source devel/setup.zsh && roslaunch home xf.launch' Enter
 sleep 2
 tmux send-keys -t 0.3 'cd ~/home_ws && source devel/setup.zsh && roslaunch home home_sm.launch' Enter
-sleep 6
+sleep 4
 tmux send-keys -t 0.4 'cd ~/home_ws && source devel/setup.zsh && roslaunch home navigation.launch' Enter

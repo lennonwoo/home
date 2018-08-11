@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from math import acos, asin, cos, sin
+from math import acos, asin, cos, sin, isnan
 
 import tf
 import cv2
@@ -38,7 +38,7 @@ def display(name, img, wait_time=0):
 
 
 class PointCloudTransformer:
-    def __init__(self, pc2_frame_id, orientation, distance):
+    def __init__(self, pc2_frame_id, distance):
         self.listener = tf.TransformListener()
         self.listener.waitForTransform("base_link", pc2_frame_id, rospy.Time(0), rospy.Duration(4.0))
         self.listener.waitForTransform("base_link", "map", rospy.Time(0), rospy.Duration(4.0))
@@ -47,16 +47,7 @@ class PointCloudTransformer:
         self.ps.header.stamp = rospy.Time(0)
 
         self.pc2_frame_id = pc2_frame_id
-
-        # for 2D, orientation.w = cos(theta/2)
-        theta = acos(orientation.w) * 2
-        if asin(orientation.z) < 0:
-            theta += PI
-
-        # self.adjust_x = distance * cos(theta)
-        # self.adjust_y = distance * sin(theta)
         self.distance = distance
-        rospy.loginfo("Theta: %f", theta)
 
     def transform(self, point):
         # 离物体要有一定距离
@@ -66,7 +57,6 @@ class PointCloudTransformer:
         rospy.loginfo("base_link's pose: %s", p)
 
         p.x -= self.distance
-        # p.y -= self.adjust_y
         rospy.loginfo("after distance's pose: %s", p)
 
         self.ps.point = p
@@ -104,10 +94,12 @@ def get_poses(boxes, distance=0.5):
     odom_msg = rospy.wait_for_message("/odom", Odometry)
     current_quaternition = odom_msg.pose.pose.orientation
 
-    pt = PointCloudTransformer(pc2_frame_id, current_quaternition, distance)
+    pt = PointCloudTransformer(pc2_frame_id, distance)
 
-    while not poses_valid(poses_result):
+    poses_tried_times = 0
+    while not poses_valid(poses_result) and poses_tried_times < 10:
         # need reset poses first
+        poses_tried_times += 1
         poses_result = []
         for box in boxes:
             xmin = box[0]
@@ -122,7 +114,7 @@ def get_poses(boxes, distance=0.5):
                 for y in range(ystart-5, ystart+5):
                     uvs.append((x, y))
 
-            data_out = pc2.read_points(pc2_msg, field_names=['x', 'y', 'z'], skip_nans=False, uvs=uvs)
+            data_out = pc2.read_points(pc2_msg, field_names=['x', 'y', 'z'], skip_nans=True, uvs=uvs)
             count = 0
             p = Point(0, 0, 0)
             for data in data_out:
@@ -143,19 +135,18 @@ def get_poses(boxes, distance=0.5):
     return poses_result
 
 
+def pose_valid(pose):
+    # avoid deep image inaccurate, you need to change num limit by the map
+    x = abs(pose.position.x)
+    y = abs(pose.position.y)
+    return x < 20 and y < 20 and not isnan(x) and not isnan(y)
+
+
 def poses_valid(poses):
     if len(poses) == 0:
         return False
 
-    valid = True
-    for pose in poses:
-        # avoid deep image inaccurate, you need to change num limit by the map
-        x = abs(pose.position.x)
-        y = abs(pose.position.y)
-        if x > 20 or y > 20:
-            valid = False
-
-    return valid
+    return all(pose_valid(pose) for pose in poses)
 
 
 def save_img(path, img):

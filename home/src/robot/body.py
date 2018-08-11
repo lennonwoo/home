@@ -27,7 +27,8 @@ class Leg(RobotPart):
 
         self.move_base.send_goal(goal)
 
-        finished_within_time = self.move_base.wait_for_result(rospy.Duration(300))
+        # TODO is move 30 second enough, need test in final home environment
+        finished_within_time = self.move_base.wait_for_result(rospy.Duration(30))
 
         if finished_within_time:
             rospy.loginfo("Arrived at Pose:\nframe_id: %s\n %s", frame_id, pose)
@@ -50,22 +51,25 @@ class Arm(RobotPart):
             self.ser.bytesize = serial.EIGHTBITS
             self.ser.timeout = 0.5
 
-            print("connect arm")
             self.connect_arm()
 
     def connect_arm(self):
+        print("connect arm")
         self.ser.write(self.config.ARM_CONNECT_COMMAND)
         self.wait_until_arm_ready()
 
-    def wait_until_arm_ready(self):
+    def wait_until_arm_ready(self, wait_close=False):
         sleep_count = 0
-        while sleep_count < 20:
-            print("sleep count: ", sleep_count)
+        sleep_limit = 14 if wait_close else 25
+        while sleep_count < sleep_limit:
             content_read = self.ser.read(2)
+            print("sleep count: ", sleep_count, "  content read ", content_read)
             if content_read == "ok":
                 return True
             else:
                 sleep_count += 1
+                # we already have serial read timeout = 0.5
+                # rospy.sleep(0.5)
 
         print("wait arm ready time out, you need reset arm")
         return False
@@ -78,7 +82,7 @@ class Arm(RobotPart):
     def close_obj(self):
         self.ser.write(self.config.ARM_CLOSE_OBJ_COMMAND)
         print("wait close_ok")
-        return self.wait_until_arm_ready()
+        return self.wait_until_arm_ready(wait_close=True)
 
     def grasp_obj(self):
         self.ser.write(self.config.ARM_GRASP_OBJ_COMMAND)
@@ -91,6 +95,9 @@ class Arm(RobotPart):
         return self.wait_until_arm_ready()
 
     def grasp(self, obj_name="kele"):
+        if not self.config.enable_arm:
+            return
+
         print("close arm")
         if not self.close_obj():
             print("I will reset arm for not close obj")
@@ -98,6 +105,8 @@ class Arm(RobotPart):
 
         if obj_name in self.config.arm_grasp_obj_list:
             self.grasp_obj()
+            # TODO need root back?
+            # self.robot.back()
             self.take_obj()
         else:
             self.reset_arm()

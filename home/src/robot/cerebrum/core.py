@@ -20,7 +20,9 @@ class Memory(RobotPart):
         if len(self._job_list) > 0:
             return self._job_list[-1]
         else:
-            return None
+            # this function must be called with job added
+            # for avoiding suddenness, we return mock job
+            return self.config.mock_job
 
     def get_jobs(self):
         return self._job_list

@@ -77,6 +77,24 @@ class AsrJobComplicative(AsrJobBase):
 
 
 class AsrJobNameObj(AsrJobBase):
+    """ The demo
+    <?xml version='1.0' encoding='utf-8' standalone='yes' ?><nlp>
+      <version>1.1</version>
+      <rawtext>我是拉文我要可乐</rawtext>
+      <confidence>52</confidence>
+      <engine>local</engine>
+      <result>
+        <focus>intro|guestname|take|item</focus>
+        <confidence>65|71|44|48</confidence>
+        <object>
+          <intro id="65535">我是</intro>
+          <guestname id="65535">拉文</guestname>
+          <take id="65535">我要</take>
+          <item id="65535">可乐</item>
+        </object>
+      </result>
+    </nlp>
+    """
     def __init__(self,
                  people_faces=None,
                  people_name=None,
@@ -98,9 +116,18 @@ class AsrJobNameObj(AsrJobBase):
     def parser(result):
         soup = BeautifulSoup(result,  "lxml")
         people_faces = None
+
+        # check the confidence
+        confidence_list = [int(i) for i in soup.result.confidence.string.encode('utf-8').split('|')]
+        cl = confidence_list
+        if cl[0] < 5 or cl[1] < 15 or cl[2] < 5 or cl[3] < 15:
+            print("confidence too low, return None", cl)
+            return None
+
         people_name = soup.guestname.string.encode('utf-8')
         obj_name = soup.item.string.encode('utf-8')
         raw_text = soup.rawtext.string.encode('utf-8')
+        print("confidence right, return Job", confidence_list)
         return AsrJobNameObj(people_faces, people_name,
                              obj_name, raw_text)
 

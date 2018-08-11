@@ -17,7 +17,6 @@ from utils import get_sorted_poses
 #         for i in range(self.guest_num):
 #             self.robot.remember_job()
 #             self.robot.broadcast_heard_job()
-#             # self.robot.confirm_job()
 
 #             if i != self.guest_num - 1:
 #                 self.robot.speak_next_guest()
@@ -51,10 +50,9 @@ class MeetGuest(smach.State):
 
                 self.robot.config.decrease_costmap()
                 for pose in poses:
-                    self.robot.move(pose)
-                    self.robot.remember_job()
-                    self.robot.broadcast_heard_job()
-                    # self.robot.confirm_job()
+                    if self.robot.move(pose):
+                        self.robot.remember_job()
+                        self.robot.broadcast_heard_job()
                     self.people_founded += 1
                 self.robot.config.increase_costmap()
 

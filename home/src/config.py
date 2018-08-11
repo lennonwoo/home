@@ -19,7 +19,7 @@ class Config:
     }
 
     box_threshold = {
-        'people': 0.6,
+        'people': 0.7,
         'face': 0.9,
 
         'wanglaoji': 0.6,
@@ -64,12 +64,17 @@ class Config:
         "wanglaoji",
     ]
 
-    @staticmethod
-    def get_obj_pose():
-        dic = {}
-        for obj in Config.objs_en:
-            dic[obj] = None
-        return dic
+    arm_grasp_obj_list = [
+        "薯片",
+        "芬达",
+        "薯片",
+        "可乐",
+        "冰红茶",
+        "矿泉水",
+        "雪碧",
+        "王老吉",
+        "kele",
+    ]
 
     @staticmethod
     def get_obj_en2cn():
@@ -85,10 +90,11 @@ class Config:
             dic[obj_cn] = obj_en
         return dic
 
-    poses_file_path = "/home/lennon/home_ws/.cache/poses_20180801.xml"
+    # poses_file_path = "/home/lennon/home_ws/.cache/poses_20180801.xml"
+    poses_file_path = "/home/lennon/home_ws/.cache/poses_20180808.xml"
 
     # meet guest part
-    people_num = 1
+    people_num = 5
     find_people_retry = False
 
     speak_pub_topic = "/xf/tts/words"
@@ -98,7 +104,7 @@ class Config:
 
     asr_job_class = AsrJobNameObj
     asr_confirm_class = AsrConfirm
-    asr_continue_time = 6
+    asr_continue_time = 5
 
     # wav part
     play_command = "play"
@@ -107,21 +113,21 @@ class Config:
     base_path = "/home/lennon/Desktop/"
     wav_base_path = base_path + "wav/"
 
-    self_intro_wav     = wav_base_path + "self_intro.wav"
-    body_down_wav      = wav_base_path + "body_down.wav"
-    short_body_down_wav= wav_base_path + "short_body_down.wav"
-    hello_name_job_wav = wav_base_path + "hello_name_job.wav"
-    next_guest_wav     = wav_base_path + "next_guest.wav"
-    again_wav          = wav_base_path + "again.wav"
-    then_again_wav     = wav_base_path + "then_again.wav"
-    stranger_wav       = wav_base_path + "stranger.wav"
+    self_intro_wav          = wav_base_path + "self_intro.wav"
+    body_down_wav           = wav_base_path + "body_down.wav"
+    short_body_down_wav     = wav_base_path + "short_body_down.wav"
+    hint_speak_name_job_wav = wav_base_path + "hint_speak_name_job.wav"
+    next_guest_wav          = wav_base_path + "next_guest.wav"
+    again_wav               = wav_base_path + "again.wav"
+    fault_again_wav         = wav_base_path + "fault_again.wav"
+    stranger_wav            = wav_base_path + "stranger.wav"
 
     broadcast_job_wav_base_path = wav_base_path + "broadcast_job/"
     broadcast_job_wav_msg_format = "你是%s，我要拿%s"
     broadcast_job_wav_path_format = broadcast_job_wav_base_path + broadcast_job_wav_msg_format +  ".wav"
 
     confirm_job_wav_base_path = wav_base_path + "confirm_job/"
-    confirm_job_wav_msg_format = "你是%s，我要拿%s，是吗"
+    confirm_job_wav_msg_format = "你是%s，我要拿%s，是吗，请回答正确或错误"
     confirm_job_wav_path_format = confirm_job_wav_base_path + confirm_job_wav_msg_format + ".wav"
 
     hello_job_wav_base_path = wav_base_path + "hello_job/"
@@ -144,22 +150,37 @@ class Config:
         client = dynamic_reconfigure.client.Client("move_base/local_costmap/inflation_layer", timeout=10)
         client.update_configuration({"inflation_radius": inflation_radius})
 
+    # TODO to make it as with syntax (__enter__, __exit__)
     @staticmethod
     def decrease_costmap():
-        Config.change_costmap_params(0.1, 0.1)
+        # Config.change_costmap_params(0.1, 0.1)
         pass
 
     @staticmethod
     def increase_costmap():
-        Config.change_costmap_params(0.18, 0.3)
+        # Config.change_costmap_params(0.18, 0.3)
         pass
 
     # arm part
-    arm_port_name = '/dev/ttyUSB0'
-    arm_baud = 57600
+    arm_port_name = '/dev/arm'
+    arm_baud = 115200
+
+    ARM_CONNECT_COMMAND = [0x40]
+    ARM_CLOSE_OBJ_COMMAND = [0xAB, 0x01, 0xEF]
+    ARM_GRASP_OBJ_COMMAND = [0xAB, 0x01, 0xEF]
+    ARM_RESET_COMMAND = [0xAB, 0x02, 0xEF]
+    ARM_TAKE_OBJ_COMMAND = [0xAB, 0x01, 0xEF]
+
+    arm_ok_list = [
+        "ok",
+    ]
+    enable_arm = True
 
     # debug part
     debug = True
     debug_path = base_path + "debug/"
     final_debug_path = base_path + "final_debug/"
 
+    # facenet part
+    enable_facenet = True
+    facenet_each_person_face_num = 3

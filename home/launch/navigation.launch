@@ -1,7 +1,8 @@
 <launch>
   <rosparam file="$(find home)/param/ros.yaml"/>
 
-  <node name="MapServer" pkg="map_server" type="map_server" output="screen" args="$(find home)/maps/home_map_20180801.yaml"/>
+  <!-- <node name="MapServer" pkg="map_server" type="map_server" output="screen" args="$(find home)/maps/home_map_20180801.yaml"/> -->
+  <node name="MapServer" pkg="map_server" type="map_server" output="screen" args="$(find home)/maps/map_20180808.yaml"/>
   <!-- <node name="MapServer" pkg="map_server" type="map_server" output="screen" args="$(find home)/maps/home_map_20180717.yaml"/> -->
   <!-- <node name="MapServer" pkg="map_server" type="map_server" output="screen" args="$(find home)/maps/2ndFloor_map3.yaml"/> -->
 
@@ -13,6 +14,6 @@
   <!-- Move base -->
   <include file="$(find turtlebot_navigation)/launch/includes/move_base.launch.xml" />
 
-   <!-- <node name="RVIZ" pkg="rviz" type="rviz" args=" -d $(find home)/rviz/home.rviz" /> -->
+  <node name="RVIZ" pkg="rviz" type="rviz" args=" -d $(find home)/rviz/home.rviz" />
 
 </launch>

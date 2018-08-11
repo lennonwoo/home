@@ -30,6 +30,7 @@ class Perception(RobotPart):
         # imgs need be [(img1, name1), (img2, name2)]
         self.recognition.init_db(imgs)
 
+    # 一定要拿到脸部的图像
     def get_face(self):
         self.yolo_detect.wait_for_server(rospy.Duration(3))
 

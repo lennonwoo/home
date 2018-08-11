@@ -72,7 +72,8 @@ class ObjMsgPathGenerator(BasicGenerator):
 
 
 def main():
-    os.system("""tmux new-window -c ~/home_ws "source devel/setup.zsh && roslaunch home xf.launch" """)
+    # cd ~/home_ws && source devel/setup.zsh && roslaunch xf_ros tts.launch
+    os.system("""tmux new-window -c ~/home_ws "source devel/setup.zsh && roslaunch xf_ros tts.launch" """)
     rospy.init_node('generate_name_obj_wav')
 
     gw = GenerateWav()
@@ -81,9 +82,9 @@ def main():
                                              Config.broadcast_job_wav_path_format))
     gw.generate_wav()
 
-    gw.change_format(NameObjMsgPathGenerator(Config.confirm_job_wav_msg_format,
-                                             Config.confirm_job_wav_path_format))
-    gw.generate_wav()
+    # gw.change_format(NameObjMsgPathGenerator(Config.confirm_job_wav_msg_format,
+    #                                          Config.confirm_job_wav_path_format))
+    # gw.generate_wav()
 
     gw.change_format(NameObjMsgPathGenerator(Config.hello_job_wav_msg_format,
                                              Config.hello_job_wav_path_format))

@@ -1,11 +1,12 @@
 <launch>
   <rosparam file="$(find home)/param/ros.yaml"/>
 
-  <include file="$(find home)/launch/D435.launch" />
   <!-- <include file="$(find home)/launch/yolo.launch"> -->
   <!--   <arg name="launch_prefix"   value="gdb -ex run -\-args"/> -->
   <!-- </include> -->
 
+
+  <include file="$(find home)/launch/D435.launch" />
   <include file="$(find home)/launch/yolo.launch" />
 
 </launch>

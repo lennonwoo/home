@@ -23,7 +23,7 @@ def timing(f):
 
 class Config:
     gpu_memory_fraction = 0.3
-    distance_threshold = 1.0
+    distance_threshold = 0.8
 
     
 class Face:

@@ -16,8 +16,8 @@ def main():
     robot = Robot(Config)
 
     @smach.cb_interface(outcomes=['arrived', 'retry'])
-    def nav_to_meet_guest(userdata):
-        return 'arrived' if robot.nav_by_place_name('meet_guest') else 'retry'
+    def enter_door(userdata):
+        return 'arrived' if robot.nav_by_place_name('enter_door') else 'retry'
 
     @smach.cb_interface(outcomes=['finished'])
     def self_intro(userdata):
@@ -35,19 +35,21 @@ def main():
 
     sm = smach.StateMachine(outcomes=['DONE'])
     with sm:
-        smach.StateMachine.add('WaitDoorOpen', WaitDoorOpen(),
+        smach.StateMachine.add('WaitDoorOpen', WaitDoorOpen(robot),
                                transitions={'waiting': 'WaitDoorOpen',
-                                            'door_opened': 'NavToDiningRoom',})
+                                            'door_opened': 'EnterDoor',})
 
-        smach.StateMachine.add('NavToDiningRoom', smach.CBState(nav_to_meet_guest),
+        smach.StateMachine.add('EnterDoor', smach.CBState(enter_door),
                                transitions={'arrived': 'SelfIntro',
-                                            'retry': 'NavToDiningRoom',})
+                                            'retry': 'EnterDoor',})
         #
         smach.StateMachine.add('SelfIntro', smach.CBState(self_intro),
                                transitions={'finished': 'MeetGuest',})
 
         smach.StateMachine.add('MeetGuest', MeetGuest(robot, Config.people_num),
-                               transitions={'finished': 'LookingGoods',})
+                               transitions={'finished': 'LookingGoods',
+                                            # 'retry': 'MeetGuest',
+                               })
 
         smach.StateMachine.add('LookingGoods', LookingGoods(robot),
                                transitions={'finished': 'FindPeople',})

@@ -32,8 +32,8 @@ class FindPeople(smach.State):
 
                 self.robot.config.decrease_costmap()
                 for pose in poses:
-                    self.robot.move(pose)
-                    self.robot.recognize()
+                    if self.robot.move(pose):
+                        self.robot.recognize()
                     self.people_founded += 1
                 self.robot.config.increase_costmap()
 

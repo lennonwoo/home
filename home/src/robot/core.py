@@ -40,7 +40,8 @@ class Robot:
         return self._leg.move(pose)
 
     def move(self, pose, frame_id="map"):
-        self._leg.move(pose, frame_id)
+        # return True if the robot arrived in time
+        return self._leg.move(pose, frame_id)
 
     def speak_self_intro(self):
         self.speak_with_wav(self.config.self_intro_wav)
@@ -81,7 +82,7 @@ class Robot:
 
     def back(self):
         pose = get_poses_by_base_link_xy(-0.3, 0)
-        self._leg.move(pose)
+        return self._leg.move(pose)
 
     def confirm_job(self):
         job = self._memory.get_last_job()

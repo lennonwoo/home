@@ -9,9 +9,9 @@ def get_sorted_poses(poses):
     print("[get_sorted_poses] the angel ", angel)
 
     if 0 <= angel < 45 or 315 <= angel < 360 or 135 <= angel < 225:
-        return sorted(poses, key=lambda pose: pose.position.x)
-    elif 45 <= angel < 135 or 225 <= angel < 315:
         return sorted(poses, key=lambda pose: pose.position.y)
+    elif 45 <= angel < 135 or 225 <= angel < 315:
+        return sorted(poses, key=lambda pose: pose.position.x)
     else:
         return poses
 

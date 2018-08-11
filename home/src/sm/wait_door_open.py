@@ -45,6 +45,6 @@ class WaitDoorOpen(smach.State):
 
             self.mutex.release()
 
-            time.sleep(.1)
+            rospy.sleep(.1)
 
         return 'waiting'

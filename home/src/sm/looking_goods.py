@@ -40,13 +40,22 @@ class LookingGoods(smach.State):
 
         # then sort poses and move robot
         if len(poses) > 0:
-            poses = get_sorted_poses(poses)
-            # move to the obj
+            # when take food, do not sort it
+            # when 2 objs close to much, robot will hold position when move to the second obj
+            # poses = get_sorted_poses(poses)
+
             for pose in poses:
-                self.robot.move(pose)
-                wav_path = self.robot.config.obj_wav_path_format % pose_name_dict[pose]
-                self.robot.speak_with_wav(wav_path)
-                # self.robot._arm.grasp(pose_name_dict[pose])
+                # need the robot arrived first
+                if self.robot.move(pose):
+                    if self.robot.config.enable_arm:
+                        # in case the arm out of control
+                        try:
+                            self.robot._arm.grasp(pose_name_dict[pose])
+                        except Exception as e:
+                            print e
+                    else:
+                        wav_path = self.robot.config.obj_wav_path_format % pose_name_dict[pose]
+                        self.robot.speak_with_wav(wav_path)
 
         self.robot.config.increase_costmap()
 

@@ -19,12 +19,12 @@ bnf_format = """\
 
 
 <mission0>:<intro><guestname>;
-<intro>:我是|我的名字是|请叫我;
+<intro>:我是|我的名字是|请叫我|我叫;
 <guestname>:%s;
 
 
 <mission1>:<take><item>;
-<take>:请帮我拿|帮我拿|给我拿|去拿|我要|给我拿|我需要|我想要;
+<take>:请帮我拿|帮我拿|给我拿|去拿|我要|给我拿|我需要|我想要|我要拿|你要拿;
 <item>:%s;
 """
 
