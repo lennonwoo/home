@@ -1,80 +1,18 @@
 # -*- coding: utf-8 -*-
 import dynamic_reconfigure.client
 
+from config_dict import ConfigDict
 from asr import AsrJobComplicative, AsrJobNameObj, AsrConfirm
 
 
 class Config:
-    distance = {
-        'people': 1.1,
-        'face': 0.5,
-
-        'wanglaoji': 0.6,
-        'fenda': 0.6,
-        'kele': 0.6,
-        'xuebi': 0.6,
-        'shui': 0.6,
-        'hongcha': 0.6,
-        'shupian': 0.6,
-    }
-
-    box_threshold = {
-        'people': 0.7,
-        'face': 0.9,
-
-        'wanglaoji': 0.6,
-        'fenda': 0.6,
-        'kele': 0.6,
-        'xuebi': 0.6,
-        'shui': 0.6,
-        'hongcha': 0.6,
-        'shupian': 0.6,
-    }
-
-    names_cn = [
-        "拉文",
-        "丹尼尔",
-        "迈克尔",
-        "杰克",
-        "费希尔",
-        "凯文",
-        "露丝",
-        "约翰",
-        "玛丽",
-        "亚当",
-    ]
-
-    objs_cn = [
-        "芬达",
-        "薯片",
-        "可乐",
-        "冰红茶",
-        "矿泉水",
-        "雪碧",
-        "王老吉",
-    ]
-
-    objs_en = [
-        "fenda",
-        "shupian",
-        "kele",
-        "hongcha",
-        "shui",
-        "xuebi",
-        "wanglaoji",
-    ]
-
-    arm_grasp_obj_list = [
-        "薯片",
-        "芬达",
-        "薯片",
-        "可乐",
-        "冰红茶",
-        "矿泉水",
-        "雪碧",
-        "王老吉",
-        "kele",
-    ]
+    distance = ConfigDict.distance
+    box_threshold = ConfigDict.box_threshold
+    names_cn = ConfigDict.names_cn
+    names_en = ConfigDict.names_en
+    objs_cn = ConfigDict.objs_cn
+    objs_en = ConfigDict.objs_en
+    arm_grasp_obj_list = ConfigDict.arm_grasp_obj_list
 
     @staticmethod
     def get_obj_en2cn():
@@ -90,8 +28,25 @@ class Config:
             dic[obj_cn] = obj_en
         return dic
 
+    @staticmethod
+    def get_name_en2cn():
+        dic = {}
+        for en, cn in zip(Config.names_cn, Config.names_cn):
+            dic[en] = cn
+        return dic
+
+    @staticmethod
+    def get_name_cn2en():
+        dic = {}
+        for en, cn in zip(Config.names_en, Config.names_cn):
+            dic[cn] = en
+        return dic
+
     # poses_file_path = "/home/lennon/home_ws/.cache/poses_20180801.xml"
-    poses_file_path = "/home/lennon/home_ws/.cache/poses_20180808.xml"
+
+    # TODO change it back
+    # poses_file_path = "/home/lennon/home_ws/.cache/test_poses.xml"
+    poses_file_path = "/home/lennon/home_ws/.cache/poses_20180813_final.xml"
 
     # meet guest part
     people_num = 5
@@ -103,6 +58,7 @@ class Config:
     yolo_action_topic = "/darknet_ros/check_for_objects"
 
     asr_job_class = AsrJobNameObj
+    mock_job = AsrJobNameObj(None, names_cn[0], objs_cn[0], "")
     asr_confirm_class = AsrConfirm
     asr_continue_time = 5
 
@@ -150,7 +106,7 @@ class Config:
         client = dynamic_reconfigure.client.Client("move_base/local_costmap/inflation_layer", timeout=10)
         client.update_configuration({"inflation_radius": inflation_radius})
 
-    # TODO to make it as with syntax (__enter__, __exit__)
+    # TODO to make it as with syntax (__enter__rue, __exit__)
     @staticmethod
     def decrease_costmap():
         # Config.change_costmap_params(0.1, 0.1)
@@ -174,7 +130,8 @@ class Config:
     arm_ok_list = [
         "ok",
     ]
-    enable_arm = True
+    # enable_arm = True
+    enable_arm = False
 
     # debug part
     debug = True
@@ -183,4 +140,11 @@ class Config:
 
     # facenet part
     enable_facenet = True
+    # enable_facenet = False
     facenet_each_person_face_num = 3
+
+    # map related
+    xmin = 0.347
+    ymin = -1.43
+    xmax = 9.25
+    ymax = 10.9

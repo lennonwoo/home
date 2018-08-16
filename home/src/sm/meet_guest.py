@@ -34,6 +34,8 @@ class MeetGuest(smach.State):
         self.people_founded = 0
 
     def execute(self, userdata):
+        # return self.test()
+
         place_list = sorted([k for k in self.robot._nav_pose_dict.keys() if k.startswith('meet_guest_location')])
 
         for place in place_list:
@@ -46,6 +48,7 @@ class MeetGuest(smach.State):
             rospy.loginfo("找到%d个人", len(poses))
 
             if len(poses) > 0:
+                # poses = self.robot.filter_poses(poses)
                 poses = get_sorted_poses(poses)
 
                 self.robot.config.decrease_costmap()
@@ -64,3 +67,10 @@ class MeetGuest(smach.State):
         else:
             self.retried = True
             return 'retry'
+
+    def test(self):
+        for _ in range(self.guest_num):
+            self.robot.remember_job()
+            self.robot.broadcast_heard_job()
+
+        return "finished"

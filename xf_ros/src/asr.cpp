@@ -127,8 +127,10 @@ void ASR::asr_mic(const char *session_begin_params) {
     }
     /* demo 10 minutes recording */
     //while(i++ < 60 * asrContinueMinutes_)
-    while(i++ < continueTime)
+    while(i++ < continueTime) {
+        std::cout << "sleep for a while" << std::endl;
         sleep(1);
+    }
     errcode = sr_stop_listening(&iat);
     if (errcode) {
         printf("stop listening failed %d\n", errcode);
@@ -323,7 +325,7 @@ int ASR::run_asr() {
     int aud_src                        = 0;
     //离线语法识别参数设置
     snprintf(asr_params, MAX_PARAMS_LEN - 1,
-             "engine_type = local, language = zh_cn, \
+             "engine_type = local, language = en_us, \
               asr_res_path = %s, sample_rate = %d, \
               grm_build_path = %s, local_grammar = %s, \
               result_type = xml, result_encoding = UTF-8, ",
@@ -443,10 +445,25 @@ void ASR::HomeRecognizeActionPreemptCB() {
 void ASR::start_asr() {
     using namespace std;
 
+    int child_pid = fork();
+    switch( child_pid ) {
+    case -1:
+        perror( "[fork-exec-test] fork failed" );
+        exit(-1);
+        break;
+    case 0:
+        system("play /home/lennon/Desktop/wav/on.wav tempo 1.2");
+        exit(0);
+        break;
+    }
+
     thread asr_thread;
+    // enable_running_ = true;
+    // continueTime = 6;
     while (!demoDone_) {
         sleep(0.5);
         if (enable_running_) {
+    // run_asr();
             asr_thread = thread(&ASR::run_asr, this);
             asr_thread.join();
             enable_running_ = false;

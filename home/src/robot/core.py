@@ -7,8 +7,8 @@ from body import Leg, Arm
 from cerebrum import Memory
 from perception import Perception
 from communication import Mouth, Ear
-from utils import get_nav_pose, save_img, save_img_with_box
-from utils import get_poses, get_poses_by_base_link_xy
+from utils import save_img, save_img_with_box
+from utils import get_poses, get_poses_by_base_link_xy, get_nav_pose, filter_pose_out_of_map
 
 
 class Robot:
@@ -170,6 +170,13 @@ class Robot:
 
     def get_jobs(self):
         return self._memory.get_jobs()
+
+    def filter_poses(self, poses):
+        xmin = self.config.xmin
+        ymin = self.config.ymin
+        xmax = self.config.xmax
+        ymax = self.config.ymax
+        return filter_pose_out_of_map(poses, xmin, ymin, xmax, ymax)
 
     def debug(self):
         for job in self._memory.get_jobs():

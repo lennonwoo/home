@@ -42,7 +42,7 @@ def main():
         smach.StateMachine.add('EnterDoor', smach.CBState(enter_door),
                                transitions={'arrived': 'SelfIntro',
                                             'retry': 'EnterDoor',})
-        #
+
         smach.StateMachine.add('SelfIntro', smach.CBState(self_intro),
                                transitions={'finished': 'MeetGuest',})
 

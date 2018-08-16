@@ -394,8 +394,8 @@ int sr_write_audio_data(struct speech_rec *sr, char *data, unsigned int len)
     }
 
     if (MSP_EP_AFTER_SPEECH == sr->ep_stat) {
-        //end_sr_on_vad(sr);
-        continue_sr_on_vad(sr);
+        end_sr_on_vad(sr);
+        // continue_sr_on_vad(sr);
     }
 
     return 0;

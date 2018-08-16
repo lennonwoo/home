@@ -8,7 +8,8 @@
     <!-- <arg name="grm_file_path" default="$(find xf_ros)/cfg/guest.bnf" /> -->
     <!--<arg name="grm_file_path" default="$(find xf_ros)/cfg/home.bnf" />-->
     <!-- <arg name="grm_file_path" default="$(find xf_ros)/cfg/home_test.bnf" /> -->
-    <arg name="grm_file_path" default="$(find xf_ros)/cfg/home_generated.bnf" />
+    <!--<arg name="grm_file_path" default="$(find xf_ros)/cfg/home_generated.bnf" />-->
+    <arg name="grm_file_path" default="$(find xf_ros)/cfg/home_final.bnf" />
     <!-- <arg name="grm_file_path" default="$(find xf_ros)/cfg/home_generated_confirmed.bnf" /> -->
     <arg name="audio_file_path" default="$(find xf_ros)/audio/ddhgdw.pcm" />
 
@@ -17,7 +18,7 @@
         <param name="grm_build_path" value="$(arg grm_build_path)" />
         <param name="grm_file_path" value="$(arg grm_file_path)" />
         <param name="audio_file_path" value="$(arg audio_file_path)" />
-        <param name="login_param" value="appid=5b4d530f" />
-        <param name="asr_continue_minutes" value="8" />
+        <param name="login_param" value="appid=5b714d5d" />
+        <param name="asr_continue_minutes" value="5" />
     </node>
 </launch>

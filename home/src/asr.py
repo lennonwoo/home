@@ -5,6 +5,8 @@ import cv2
 
 from bs4 import BeautifulSoup
 
+from config import ConfigDict
+
 
 class AsrJobBase:
     def __init__(self,
@@ -113,6 +115,19 @@ class AsrJobNameObj(AsrJobBase):
                self.obj_name, self.raw_text)
 
     @staticmethod
+    def confidence_list_low(cl):
+        addup = sum(cl)
+        # the theater's voice is too aloud, so decrease it
+        if addup > 70 and cl[1] > 8:
+            return False
+        # change it to 15 if you don't speak directly
+        # elif cl[0] < 15 or cl[1] < 15 or cl[2] < 15 or cl[3] < 15:
+        elif cl[0] < 15 or cl[1] < 10 or cl[2] < 15 or cl[3] < 10:
+            return True
+        else:
+            return False
+
+    @staticmethod
     def parser(result):
         soup = BeautifulSoup(result,  "lxml")
         people_faces = None
@@ -120,13 +135,18 @@ class AsrJobNameObj(AsrJobBase):
         # check the confidence
         confidence_list = [int(i) for i in soup.result.confidence.string.encode('utf-8').split('|')]
         cl = confidence_list
-        if cl[0] < 5 or cl[1] < 15 or cl[2] < 5 or cl[3] < 15:
+        if AsrJobNameObj.confidence_list_low(cl):
             print("confidence too low, return None", cl)
             return None
 
         people_name = soup.guestname.string.encode('utf-8')
         obj_name = soup.item.string.encode('utf-8')
         raw_text = soup.rawtext.string.encode('utf-8')
+
+        # do the following when input is English.
+        people_name = ConfigDict.get_name_en2cn()[people_name]
+        obj_name = ConfigDict.get_obj_en2cn()[obj_name]
+
         print("confidence right, return Job", confidence_list)
         return AsrJobNameObj(people_faces, people_name,
                              obj_name, raw_text)

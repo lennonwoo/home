@@ -95,7 +95,7 @@ class Arm(RobotPart):
         return self.wait_until_arm_ready()
 
     def grasp(self, obj_name="kele"):
-        if not self.config.enable_arm:
+        if not self.config.enable_arm and obj_name not in self.config.arm_grasp_obj_list:
             return
 
         print("close arm")

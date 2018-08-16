@@ -73,6 +73,7 @@ class Perception(RobotPart):
             return None
 
     def get_obj(self, obj_name="people"):
+        print("[get_obj] trying to find ", obj_name)
         self.yolo_detect.wait_for_server(rospy.Duration(3))
 
         goal = CheckForObjectsGoal()

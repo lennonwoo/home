@@ -15,8 +15,11 @@ class FindPeople(smach.State):
         self.people_founded = 0
 
     def execute(self, userdata):
+        # return self.test()
+
         self.robot.prepare_find_people()
 
+        self.robot.nav_by_place_name("middle")
         place_list = sorted([k for k in self.robot._nav_pose_dict.keys() if k.startswith('find_people_location')])
         for place in place_list:
             self.robot.nav_by_place_name(str(place))
@@ -28,6 +31,7 @@ class FindPeople(smach.State):
             rospy.loginfo("找到%d个人", len(poses))
 
             if len(poses) > 0:
+                # poses = self.robot.filter_poses(poses)
                 poses = get_sorted_poses(poses)
 
                 self.robot.config.decrease_costmap()
@@ -45,3 +49,11 @@ class FindPeople(smach.State):
         else:
             self.retried = True
             return 'retry'
+
+    def test(self):
+        self.robot.prepare_find_people()
+
+        for _ in range(5):
+            self.robot.recognize()
+
+        return 'finished'

@@ -149,6 +149,14 @@ def poses_valid(poses):
     return all(pose_valid(pose) for pose in poses)
 
 
+def filter_pose_out_of_map(poses, xmin, ymin, xmax, ymax):
+    def pose_filter(pose):
+        x = pose.position.x
+        y = pose.position.y
+        return xmin < x < xmax and ymin < y < ymax
+    return list(filter(pose_filter, poses))
+
+
 def save_img(path, img):
     cv2.imwrite(path, img)
 
