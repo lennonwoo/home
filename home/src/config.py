@@ -1,56 +1,15 @@
 # -*- coding: utf-8 -*-
-import dynamic_reconfigure.client
+import os
 
 from config_dict import ConfigDict
 from asr import AsrJobComplicative, AsrJobNameObj, AsrConfirm
 
 
-class Config:
-    distance = ConfigDict.distance
-    box_threshold = ConfigDict.box_threshold
-    names_cn = ConfigDict.names_cn
-    names_en = ConfigDict.names_en
-    objs_cn = ConfigDict.objs_cn
-    objs_en = ConfigDict.objs_en
-    arm_grasp_obj_list = ConfigDict.arm_grasp_obj_list
-
-    @staticmethod
-    def get_obj_en2cn():
-        dic = {}
-        for obj_en, obj_cn in zip(Config.objs_en, Config.objs_cn):
-            dic[obj_en] = obj_cn
-        return dic
-
-    @staticmethod
-    def get_obj_cn2en():
-        dic = {}
-        for obj_en, obj_cn in zip(Config.objs_en, Config.objs_cn):
-            dic[obj_cn] = obj_en
-        return dic
-
-    @staticmethod
-    def get_name_en2cn():
-        dic = {}
-        for en, cn in zip(Config.names_cn, Config.names_cn):
-            dic[en] = cn
-        return dic
-
-    @staticmethod
-    def get_name_cn2en():
-        dic = {}
-        for en, cn in zip(Config.names_en, Config.names_cn):
-            dic[cn] = en
-        return dic
-
-    # poses_file_path = "/home/lennon/home_ws/.cache/poses_20180801.xml"
-
-    # TODO change it back
-    # poses_file_path = "/home/lennon/home_ws/.cache/test_poses.xml"
-    poses_file_path = "/home/lennon/home_ws/.cache/poses_20180813_final.xml"
+class Config(ConfigDict):
+    poses_file_path = os.path.expanduser("~/home_ws/.cache/poses_20180808.xml")
 
     # meet guest part
-    people_num = 5
-    find_people_retry = False
+    people_num = 1
 
     speak_pub_topic = "/xf/tts/words"
     asr_action_topic = "/xf_asr/home_recognize"
@@ -58,15 +17,15 @@ class Config:
     yolo_action_topic = "/darknet_ros/check_for_objects"
 
     asr_job_class = AsrJobNameObj
-    mock_job = AsrJobNameObj(None, names_cn[0], objs_cn[0], "")
+    mock_job = AsrJobNameObj(None, ConfigDict.names_cn[0], ConfigDict.objs_cn[0], "")
     asr_confirm_class = AsrConfirm
-    asr_continue_time = 5
+    asr_continue_time = 6
 
     # wav part
     play_command = "play"
     wav_speed_up = "1.2"  # Notes: use str
 
-    base_path = "/home/lennon/Desktop/"
+    base_path = os.path.expanduser("~/Desktop")
     wav_base_path = base_path + "wav/"
 
     self_intro_wav          = wav_base_path + "self_intro.wav"
@@ -93,29 +52,6 @@ class Config:
     obj_wav_base_path = wav_base_path + "obj/"
     obj_wav_msg_format = "%s"
     obj_wav_path_format = obj_wav_base_path + obj_wav_msg_format + ".wav"
-
-    # dynamic costmap param change part
-    @staticmethod
-    def change_costmap_params(robot_radius=0.18, inflation_radius=0.3):
-        client = dynamic_reconfigure.client.Client("move_base/global_costmap", timeout=10)
-        client.update_configuration({"robot_radius": robot_radius})
-        client = dynamic_reconfigure.client.Client("move_base/global_costmap/inflation_layer", timeout=10)
-        client.update_configuration({"inflation_radius": inflation_radius})
-        client = dynamic_reconfigure.client.Client("move_base/local_costmap", timeout=10)
-        client.update_configuration({"robot_radius": robot_radius})
-        client = dynamic_reconfigure.client.Client("move_base/local_costmap/inflation_layer", timeout=10)
-        client.update_configuration({"inflation_radius": inflation_radius})
-
-    # TODO to make it as with syntax (__enter__rue, __exit__)
-    @staticmethod
-    def decrease_costmap():
-        # Config.change_costmap_params(0.1, 0.1)
-        pass
-
-    @staticmethod
-    def increase_costmap():
-        # Config.change_costmap_params(0.18, 0.3)
-        pass
 
     # arm part
     arm_port_name = '/dev/arm'
@@ -148,3 +84,6 @@ class Config:
     ymin = -1.43
     xmax = 9.25
     ymax = 10.9
+
+    # TODO(lennon) is move 30 second enough, need test in final home environment
+    move_time_limit = 30

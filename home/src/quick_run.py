@@ -29,8 +29,7 @@ def run_xf(robot):
 
 
 def robot_init_db(robot):
-    # base_dir = "/home/lennon/Desktop/test_jpg/"
-    base_dir = "/home/lennon/Desktop/debug/"
+    base_dir = os.path.expanduser("~/Desktop/debug/")
 
     imgs = []
     for jpg_file in os.listdir(base_dir):
@@ -57,7 +56,8 @@ def run_arm(robot):
 
 if __name__ == '__main__':
     rospy.init_node('test')
-    rospy.set_param("~model_path", "/home/lennon/home_ws/src/home/models/facenet/20180402-114759/20180402-114759.pb")
+    model_path = os.path.expanduser("~/home_ws/src/home/models/facenet/20180402-114759/20180402-114759.pb")
+    rospy.set_param("~model_path", model_path)
     robot = Robot(Config)
 
     # run_follow_people()

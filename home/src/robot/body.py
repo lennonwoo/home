@@ -18,7 +18,8 @@ class Leg(RobotPart):
         self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
 
     def move(self, pose, frame_id='map'):
-        self.move_base.wait_for_server(rospy.Duration(30))
+        time_limit = self.config.move_time_limit
+        self.move_base.wait_for_server(rospy.Duration(time_limit))
 
         goal = MoveBaseGoal()
         goal.target_pose.pose = pose
@@ -27,8 +28,7 @@ class Leg(RobotPart):
 
         self.move_base.send_goal(goal)
 
-        # TODO is move 30 second enough, need test in final home environment
-        finished_within_time = self.move_base.wait_for_result(rospy.Duration(30))
+        finished_within_time = self.move_base.wait_for_result(rospy.Duration(time_limit))
 
         if finished_within_time:
             rospy.loginfo("Arrived at Pose:\nframe_id: %s\n %s", frame_id, pose)
@@ -105,7 +105,7 @@ class Arm(RobotPart):
 
         if obj_name in self.config.arm_grasp_obj_list:
             self.grasp_obj()
-            # TODO need root back?
+            # TODO(lennon) need root back?
             # self.robot.back()
             self.take_obj()
         else:

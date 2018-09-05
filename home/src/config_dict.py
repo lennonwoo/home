@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 class ConfigDict:
     distance = {
-        'people': 1.23,
+        'people': 1.1,
         'face': 0.5,
 
         'wanglaoji': 0.55,
@@ -115,30 +115,24 @@ class ConfigDict:
     ]
 
     @staticmethod
-    def get_obj_en2cn():
+    def get_trans_dict(keys, values):
         dic = {}
-        for obj_en, obj_cn in zip(ConfigDict.objs_en, ConfigDict.objs_cn):
-            dic[obj_en] = obj_cn
+        for k, v in zip(keys, values):
+            dic[k] = v
         return dic
+
+    @staticmethod
+    def get_obj_en2cn():
+        return ConfigDict.get_trans_dict(ConfigDict.objs_en, ConfigDict.objs_cn)
 
     @staticmethod
     def get_obj_cn2en():
-        dic = {}
-        for obj_en, obj_cn in zip(ConfigDict.objs_en, ConfigDict.objs_cn):
-            dic[obj_cn] = obj_en
-        return dic
+        return ConfigDict.get_trans_dict(ConfigDict.objs_cn, ConfigDict.objs_en)
 
     @staticmethod
     def get_name_en2cn():
-        dic = {}
-        for en, cn in zip(ConfigDict.names_en, ConfigDict.names_cn):
-            dic[en] = cn
-        return dic
+        return ConfigDict.get_trans_dict(ConfigDict.names_en, ConfigDict.names_cn)
 
     @staticmethod
     def get_name_cn2en():
-        dic = {}
-        for en, cn in zip(ConfigDict.names_en, ConfigDict.names_cn):
-            dic[cn] = en
-        return dic
-
+        return ConfigDict.get_trans_dict(ConfigDict.names_cn, ConfigDict.names_en)
