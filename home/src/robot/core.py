@@ -43,7 +43,7 @@ class Robot:
         # return True if the robot arrived in time
         return self._leg.move(pose, frame_id)
 
-    def speak_self_intro(self):
+    def self_intro(self):
         self.speak_with_wav(self.config.self_intro_wav)
 
     def speak_next_guest(self):
@@ -72,12 +72,13 @@ class Robot:
             job = self._ear.get_asr(self.config.asr_job_class)
         rospy.loginfo("[remember_job] finish get job!")
 
-        self.add_job_with_faces(job, self._memory.get_last_faces_by_config())
+        self._add_job_with_faces(job, self._memory.get_last_faces_by_config())
         rospy.loginfo("[remember_job] job added!")
 
     def broadcast_heard_job(self):
         job = self._memory.get_last_job()
-        wav_path = self.config.broadcast_job_wav_path_format % (job.people_name, job.obj_name)
+        wav_path = self.config.broadcast_job_wav_path_format % (job.people_name,
+                                                                job.obj_name)
         self.speak_with_wav(wav_path)
 
     def back(self):
@@ -86,14 +87,14 @@ class Robot:
 
     def confirm_job(self):
         job = self._memory.get_last_job()
-
-        wav_path = self.config.confirm_job_wav_path_format % (job.people_name, job.obj_name)
+        wav_path = self.config.confirm_job_wav_path_format % (job.people_name,
+                                                              job.obj_name)
         self.speak_with_wav(wav_path)
 
         try:
             confirmed = self._ear.get_asr(self.config.asr_confirm_class).confirmed
         except Exception as e:
-            # TODO just return True if asr get wrong xml?
+            # TODO(lennon) just return True if asr get wrong xml?
             print(e)
             return True
 
@@ -105,25 +106,11 @@ class Robot:
 
             rospy.loginfo("[remember_job] start get job")
             job = self._ear.get_asr(self.config.asr_job_class)
-            self.add_job_with_faces(job, self._memory.get_last_faces_by_config())
+            self._add_job_with_faces(job, self._memory.get_last_faces_by_config())
             rospy.loginfo("[remember_job] get job!")
 
             # want cofirm until true?
             self.confirm_job()
-
-    def add_job_with_faces(self, job, faces):
-        job.add_faces(faces)
-        if self.config.debug:
-            for face in faces:
-                dict_key = "".join([job.people_name, job.obj_name])
-                path = "".join([self.config.debug_path,
-                                job.people_name, job.obj_name,
-                                str(self.find_obj_times[dict_key]),
-                                '.jpg'])
-                save_img(path, face)
-                self.find_obj_times[dict_key] += 1
-
-        self._memory.add_job(job)
 
     def find_obj_poses(self, obj_name):
         """
@@ -147,7 +134,7 @@ class Robot:
 
         return poses
 
-    def prepare_find_people(self):
+    def init_face_db(self):
         imgs = []
         for job in self._memory.get_jobs():
             for face in job.get_faces():
@@ -178,6 +165,10 @@ class Robot:
         ymax = self.config.ymax
         return filter_pose_out_of_map(poses, xmin, ymin, xmax, ymax)
 
+    def get_place_list(self, place_name):
+        return sorted([str(k) for k in self._nav_pose_dict.keys()
+                       if k.startswith(place_name)])
+
     def debug(self):
         for job in self._memory.get_jobs():
             for i, face in enumerate(job.get_faces()):
@@ -188,3 +179,18 @@ class Robot:
 
         for job in self._memory.get_jobs():
             job.debug()
+
+    def _add_job_with_faces(self, job, faces):
+        job.add_faces(faces)
+        if self.config.debug:
+            for face in faces:
+                dict_key = "".join([job.people_name, job.obj_name])
+                path = "".join([self.config.debug_path,
+                                job.people_name, job.obj_name,
+                                str(self.find_obj_times[dict_key]),
+                                '.jpg'])
+                save_img(path, face)
+                self.find_obj_times[dict_key] += 1
+
+        self._memory.add_job(job)
+

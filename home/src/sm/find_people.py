@@ -3,6 +3,7 @@ import smach
 import rospy
 
 from utils import get_sorted_poses
+from utils import decrease_costmap, increase_costmap
 
 
 class FindPeople(smach.State):
@@ -11,16 +12,15 @@ class FindPeople(smach.State):
 
         self.robot = robot
         self.people_num = self.robot.config.people_num
-        self.retried = False if self.robot.config.find_people_retry else True
         self.people_founded = 0
 
     def execute(self, userdata):
         # return self.test()
 
-        self.robot.prepare_find_people()
-
+        self.robot.init_face_db()
         self.robot.nav_by_place_name("middle")
-        place_list = sorted([k for k in self.robot._nav_pose_dict.keys() if k.startswith('find_people_location')])
+
+        place_list = self.robot.get_place_list('find_people_location')
         for place in place_list:
             self.robot.nav_by_place_name(str(place))
             poses = self.robot.find_obj_poses("people")
@@ -34,24 +34,18 @@ class FindPeople(smach.State):
                 # poses = self.robot.filter_poses(poses)
                 poses = get_sorted_poses(poses)
 
-                self.robot.config.decrease_costmap()
+                decrease_costmap()
                 for pose in poses:
                     if self.robot.move(pose):
                         self.robot.recognize()
                     self.people_founded += 1
-                self.robot.config.increase_costmap()
+                increase_costmap()
 
             if self.people_founded >= self.people_num:
                 return 'finished'
 
-        if self.retried:
-            return 'finished'
-        else:
-            self.retried = True
-            return 'retry'
-
     def test(self):
-        self.robot.prepare_find_people()
+        self.robot.init_face_db()
 
         for _ in range(5):
             self.robot.recognize()

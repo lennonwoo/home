@@ -17,11 +17,15 @@ def main():
 
     @smach.cb_interface(outcomes=['arrived', 'retry'])
     def enter_door(userdata):
-        return 'arrived' if robot.nav_by_place_name('enter_door') else 'retry'
+        # return 'arrived' if robot.nav_by_place_name('enter_door') else 'retry'
+
+        # quick enter door
+        robot.nav_by_place_name('enter_door')
+        return 'arrived'
 
     @smach.cb_interface(outcomes=['finished'])
     def self_intro(userdata):
-        robot.speak_self_intro()
+        robot.self_intro()
         return 'finished'
 
     @smach.cb_interface(outcomes=['arrived', 'retry'])

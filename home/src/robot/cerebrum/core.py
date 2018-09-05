@@ -44,7 +44,7 @@ class Memory(RobotPart):
 
     def get_last_faces_by_config(self):
         n = self.config.facenet_each_person_face_num
-        return self._face_list[-n:]
+        return self.get_last_n_faces(n)
 
     def get_last_n_faces(self, n):
         return self._face_list[-n:]
