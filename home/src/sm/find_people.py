@@ -44,6 +44,8 @@ class FindPeople(smach.State):
             if self.people_founded >= self.people_num:
                 return 'finished'
 
+        return 'finished'
+
     def test(self):
         self.robot.init_face_db()
 

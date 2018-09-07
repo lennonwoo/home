@@ -42,6 +42,8 @@ class MeetGuest(smach.State):
             if self.people_founded >= self.guest_num:
                 return 'finished'
 
+        return 'finished'
+
     def test(self):
         for _ in range(self.guest_num):
             self.robot.remember_job()

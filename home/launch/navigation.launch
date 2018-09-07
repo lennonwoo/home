@@ -1,7 +1,8 @@
 <launch>
   <rosparam file="$(find home)/param/ros.yaml"/>
 
-  <node name="MapServer" pkg="map_server" type="map_server" output="screen" args="$(find home)/maps/map_20180813_final.yaml"/>
+  <!-- <node name="MapServer" pkg="map_server" type="map_server" output="screen" args="$(find home)/maps/map_20180813_final.yaml"/> -->
+  <node name="MapServer" pkg="map_server" type="map_server" output="screen" args="$(find home)/maps/map_20180808.yaml"/>
     <!--TODO-->
   <!--<node name="MapServer" pkg="map_server" type="map_server" output="screen" args="/tmp/test.yaml"/>-->
 

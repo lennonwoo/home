@@ -9,7 +9,7 @@ class Config(ConfigDict):
     poses_file_path = os.path.expanduser("~/home_ws/.cache/poses_20180808.xml")
 
     # meet guest part
-    people_num = 1
+    people_num = 2
 
     speak_pub_topic = "/xf/tts/words"
     asr_action_topic = "/xf_asr/home_recognize"
@@ -25,7 +25,7 @@ class Config(ConfigDict):
     play_command = "play"
     wav_speed_up = "1.2"  # Notes: use str
 
-    base_path = os.path.expanduser("~/Desktop")
+    base_path = os.path.expanduser("~/Desktop/")
     wav_base_path = base_path + "wav/"
 
     self_intro_wav          = wav_base_path + "self_intro.wav"
