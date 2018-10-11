@@ -11,4 +11,4 @@ tmux send-keys -t 0.2 'cd ~/home_ws && source devel/setup.zsh && roslaunch home 
 sleep 2
 tmux send-keys -t 0.3 'cd ~/home_ws && source devel/setup.zsh && roslaunch home home_sm.launch' Enter
 sleep 4
-tmux send-keys -t 0.4 'cd ~/home_ws && source devel/setup.zsh && roslaunch home navigation.launch' Enter
+tmux send-keys -t 0.4 'cd ~/home_ws && source devel/setup.zsh && roslaunch turtlebot_navigation navigation.launch' Enter
