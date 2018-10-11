@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="home" type="follower.py" name="follower" output="screen">
+    <remap from="follower/cmd_vel" to="follower_velocity_smoother/raw_cmd_vel"/>
+  </node>
+</launch>
