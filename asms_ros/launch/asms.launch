@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+    <node pkg="asms_ros" type="asms_node" name="asms_node" output="screen"/>
+</launch>
